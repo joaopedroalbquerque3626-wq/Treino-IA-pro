@@ -1,0 +1,6 @@
+{
+  "name": "TREINO IA PRO",
+  "description": "Plataforma inteligente de treinamento físico que utiliza IA para criar, organizar e acompanhar planos de treino personalizados.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
