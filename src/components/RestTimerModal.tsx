@@ -62,16 +62,16 @@ export const RestTimerModal: React.FC<RestTimerModalProps> = ({
   const progressPercent = totalTime > 0 ? ((totalTime - secondsLeft) / totalTime) * 100 : 100;
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-white border border-slate-200 rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl relative animate-in zoom-in-95">
+    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl relative animate-in zoom-in-95 transition-colors">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-xl bg-slate-100 text-slate-500 hover:text-slate-900 transition-colors cursor-pointer"
+          className="absolute top-4 right-4 p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
         >
           <X className="w-5 h-5" />
         </button>
 
-        <div className="flex items-center justify-center gap-1.5 text-blue-600 font-bold text-xs uppercase tracking-wider mb-2">
+        <div className="flex items-center justify-center gap-1.5 text-blue-600 dark:text-blue-400 font-bold text-xs uppercase tracking-wider mb-2">
           <Timer className="w-4 h-4" />
           <span>Timer de Descanso</span>
         </div>
@@ -83,7 +83,7 @@ export const RestTimerModal: React.FC<RestTimerModalProps> = ({
               cx="88"
               cy="88"
               r="72"
-              className="stroke-slate-100"
+              className="stroke-slate-100 dark:stroke-slate-800"
               strokeWidth="8"
               fill="transparent"
             />
@@ -91,7 +91,7 @@ export const RestTimerModal: React.FC<RestTimerModalProps> = ({
               cx="88"
               cy="88"
               r="72"
-              className="stroke-blue-600 transition-all duration-1000"
+              className="stroke-blue-600 dark:stroke-blue-500 transition-all duration-1000"
               strokeWidth="8"
               strokeDasharray={452}
               strokeDashoffset={452 - (452 * progressPercent) / 100}
@@ -101,10 +101,10 @@ export const RestTimerModal: React.FC<RestTimerModalProps> = ({
           </svg>
 
           <div className="absolute flex flex-col items-center justify-center">
-            <span className="text-4xl font-black text-slate-900 tracking-tight font-mono">
+            <span className="text-4xl font-black text-slate-900 dark:text-white tracking-tight font-mono">
               {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
             </span>
-            <span className="text-[10px] text-slate-500 mt-1 uppercase font-semibold">
+            <span className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 uppercase font-semibold">
               {secondsLeft === 0 ? 'DESCANSO CONCLUÍDO! 🔥' : 'Intervalo entre séries'}
             </span>
           </div>
@@ -114,29 +114,29 @@ export const RestTimerModal: React.FC<RestTimerModalProps> = ({
         <div className="flex justify-center items-center gap-4 mb-6">
           <button
             onClick={() => handleAdjust(-10)}
-            className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100 transition-colors flex items-center gap-1 text-xs font-bold cursor-pointer"
+            className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors flex items-center gap-1 text-xs font-bold cursor-pointer"
           >
             <Minus className="w-4 h-4" /> 10s
           </button>
 
           <button
             onClick={() => setIsRunning(!isRunning)}
-            className="p-4 rounded-2xl bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 cursor-pointer"
+            className="p-4 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white transition-all shadow-lg shadow-blue-600/20 cursor-pointer"
           >
             {isRunning ? <Pause className="w-6 h-6 fill-white" /> : <Play className="w-6 h-6 fill-white ml-0.5" />}
           </button>
 
           <button
             onClick={() => handleAdjust(10)}
-            className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100 transition-colors flex items-center gap-1 text-xs font-bold cursor-pointer"
+            className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors flex items-center gap-1 text-xs font-bold cursor-pointer"
           >
             <Plus className="w-4 h-4" /> 10s
           </button>
         </div>
 
         {/* Quick Presets */}
-        <div className="space-y-2 pt-3 border-t border-slate-100">
-          <p className="text-[11px] text-slate-500 font-medium">Ajuste rápido de tempo:</p>
+        <div className="space-y-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Ajuste rápido de tempo:</p>
           <div className="grid grid-cols-5 gap-1.5">
             {[30, 45, 60, 90, 120].map((sec) => (
               <button
@@ -144,8 +144,8 @@ export const RestTimerModal: React.FC<RestTimerModalProps> = ({
                 onClick={() => handlePreset(sec)}
                 className={`py-1.5 px-1 rounded-lg text-xs font-bold border transition-colors cursor-pointer ${
                   totalTime === sec
-                    ? 'bg-blue-50 border-blue-500 text-blue-600'
-                    : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
+                    ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-500 dark:border-blue-500 text-blue-600 dark:text-blue-400'
+                    : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600'
                 }`}
               >
                 {sec}s

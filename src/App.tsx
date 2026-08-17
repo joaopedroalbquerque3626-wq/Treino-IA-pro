@@ -7,6 +7,7 @@ import {
   Exercise,
   WorkoutDay,
   ProgressionSuggestion,
+  ThemeMode,
 } from './types';
 import { Navbar } from './components/Navbar';
 import { BottomNav } from './components/BottomNav';
@@ -31,6 +32,19 @@ import {
 } from './services/workoutEngine';
 
 export default function App() {
+  // THEME MANAGEMENT STATE
+  const [themeMode, setThemeMode] = useState<ThemeMode>(() => {
+    try {
+      const savedTheme = localStorage.getItem('treino_ia_pro_theme');
+      if (savedTheme === 'light' || savedTheme === 'dark' || savedTheme === 'system') {
+        return savedTheme as ThemeMode;
+      }
+      return 'system';
+    } catch {
+      return 'system';
+    }
+  });
+
   // PERSISTED LOCAL STORAGE STATES
   const [profile, setProfile] = useState<UserProfile | null>(() => {
     try {
@@ -100,6 +114,40 @@ export default function App() {
   const [activeWorkoutDay, setActiveWorkoutDay] = useState<WorkoutDay | null>(null);
   const [loadingPlan, setLoadingPlan] = useState(false);
 
+  // THEME EFFECT: Update root document element class
+  useEffect(() => {
+    localStorage.setItem('treino_ia_pro_theme', themeMode);
+
+    const root = document.documentElement;
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+    const applyTheme = () => {
+      if (themeMode === 'dark') {
+        root.classList.add('dark');
+      } else if (themeMode === 'light') {
+        root.classList.remove('dark');
+      } else {
+        // System preference
+        if (mediaQuery.matches) {
+          root.classList.add('dark');
+        } else {
+          root.classList.remove('dark');
+        }
+      }
+    };
+
+    applyTheme();
+
+    const handleMediaChange = () => {
+      if (themeMode === 'system') {
+        applyTheme();
+      }
+    };
+
+    mediaQuery.addEventListener('change', handleMediaChange);
+    return () => mediaQuery.removeEventListener('change', handleMediaChange);
+  }, [themeMode]);
+
   // SAVE STATES TO LOCAL STORAGE
   useEffect(() => {
     if (profile) localStorage.setItem('treino_ia_pro_profile', JSON.stringify(profile));
@@ -116,6 +164,17 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('treino_ia_pro_evolution', JSON.stringify(evolutionLogs));
   }, [evolutionLogs]);
+
+  // TOGGLE THEME HELPER (For navbar quick button)
+  const handleToggleTheme = () => {
+    setThemeMode((prev) => {
+      if (prev === 'light') return 'dark';
+      if (prev === 'dark') return 'light';
+      // If currently system, toggle based on current active class
+      const isCurrentlyDark = document.documentElement.classList.contains('dark');
+      return isCurrentlyDark ? 'light' : 'dark';
+    });
+  };
 
   // STREAK COMPUTATION
   const computeStreakDays = () => {
@@ -296,7 +355,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans selection:bg-blue-600 selection:text-white">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans selection:bg-blue-600 selection:text-white transition-colors duration-200">
       {/* GLOBAL NAVBAR */}
       <Navbar
         profile={profile}
@@ -305,6 +364,9 @@ export default function App() {
         streakDays={computeStreakDays()}
         onOpenNotifications={() => setNotificationsOpen(true)}
         onOpenSafety={() => setSafetyModalOpen(true)}
+        themeMode={themeMode}
+        onToggleTheme={handleToggleTheme}
+        onLoginDemo={handleLoginDemo}
       />
 
       {/* MAIN VIEW CONTROLLER */}
@@ -396,6 +458,8 @@ export default function App() {
             onRegeneratePlan={handleRegeneratePlan}
             onOpenSafety={() => setSafetyModalOpen(true)}
             loadingRegen={loadingPlan}
+            themeMode={themeMode}
+            onSelectTheme={setThemeMode}
           />
         )}
       </main>

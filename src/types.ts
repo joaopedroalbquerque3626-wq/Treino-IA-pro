@@ -1,3 +1,5 @@
+export type ThemeMode = 'light' | 'dark' | 'system';
+
 export type Objective =
   | 'Ganho de massa muscular'
   | 'Perda de gordura'

@@ -18,7 +18,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ history }) => {
   return (
     <div className="max-w-5xl mx-auto px-4 py-6 space-y-6 animate-in fade-in pb-28">
       {/* Header */}
-      <div className="bg-slate-900 text-white rounded-3xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xl">
+      <div className="bg-slate-900 text-white rounded-3xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xl border border-slate-800">
         <div>
           <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-blue-400 bg-blue-500/20 px-3 py-1 rounded-full border border-blue-500/30 mb-2">
             <History className="w-3.5 h-3.5" />
@@ -46,9 +46,9 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ history }) => {
       {/* SESSIONS LIST */}
       <div className="space-y-3">
         {filteredHistory.length === 0 ? (
-          <div className="bg-white border border-slate-200 rounded-3xl p-12 text-center text-slate-500 space-y-2 shadow-sm">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-12 text-center text-slate-500 dark:text-slate-400 space-y-2 shadow-xs transition-colors">
             <FileText className="w-8 h-8 mx-auto text-slate-400" />
-            <p className="text-sm font-bold text-slate-700">Nenhum treino registrado ainda</p>
+            <p className="text-sm font-bold text-slate-700 dark:text-slate-300">Nenhum treino registrado ainda</p>
             <p className="text-xs">Complete seu primeiro treino no aplicativo para ver o histórico aqui.</p>
           </div>
         ) : (
@@ -56,28 +56,28 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ history }) => {
             <div
               key={session.id}
               onClick={() => setSelectedSession(session)}
-              className="bg-white border border-slate-200 hover:border-blue-300 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all cursor-pointer group shadow-sm"
+              className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-blue-300 dark:hover:border-blue-600 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all cursor-pointer group shadow-xs"
             >
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">
+                  <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded border border-blue-200 dark:border-blue-800">
                     {session.date}
                   </span>
-                  <span className="text-xs text-slate-500 flex items-center gap-1">
-                    <Clock className="w-3 h-3 text-blue-600" />
+                  <span className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                    <Clock className="w-3 h-3 text-blue-600 dark:text-blue-400" />
                     {session.durationMinutes} min
                   </span>
                 </div>
-                <h3 className="text-base font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+                <h3 className="text-base font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                   {session.workoutTitle}
                 </h3>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   {session.exerciseLogs.length} exercícios concluídos
                 </p>
               </div>
 
               <div className="flex items-center gap-2 self-end sm:self-center">
-                <span className="text-xs font-bold text-blue-600 flex items-center gap-1">
+                <span className="text-xs font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1">
                   Ver Detalhes
                   <ChevronRight className="w-4 h-4" />
                 </span>
@@ -89,40 +89,40 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ history }) => {
 
       {/* SESSION DETAIL MODAL */}
       {selectedSession && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white border border-slate-200 rounded-3xl max-w-lg w-full p-6 text-slate-900 shadow-2xl relative space-y-4">
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full p-6 text-slate-900 dark:text-white shadow-2xl relative space-y-4">
             <div className="flex justify-between items-start">
               <div>
-                <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded border border-blue-100">
+                <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2.5 py-0.5 rounded border border-blue-200 dark:border-blue-800">
                   {selectedSession.date}
                 </span>
-                <h3 className="text-xl font-bold text-slate-900 mt-1">{selectedSession.workoutTitle}</h3>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white mt-1">{selectedSession.workoutTitle}</h3>
               </div>
               <button
                 onClick={() => setSelectedSession(null)}
-                className="p-2 rounded-xl bg-slate-100 text-slate-500 hover:text-slate-900 cursor-pointer"
+                className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <div className="space-y-3 max-h-[50vh] overflow-y-auto pr-1">
-              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+              <h4 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                 Detalhamento por Exercício:
               </h4>
 
               {selectedSession.exerciseLogs.map((ex, idx) => (
-                <div key={idx} className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-2">
-                  <div className="flex justify-between text-xs font-bold text-slate-900">
+                <div key={idx} className="bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-2">
+                  <div className="flex justify-between text-xs font-bold text-slate-900 dark:text-white">
                     <span>{ex.exerciseName}</span>
-                    <span className="text-blue-600">{ex.muscleGroup}</span>
+                    <span className="text-blue-600 dark:text-blue-400">{ex.muscleGroup}</span>
                   </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 text-[10px] text-slate-700">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 text-[10px] text-slate-700 dark:text-slate-300">
                     {ex.sets.map((set, sIdx) => (
-                      <div key={sIdx} className="bg-white p-2 rounded-lg border border-slate-200 shadow-2xs">
-                        <span className="block font-bold text-slate-400">Série {set.setIndex}</span>
-                        <span className="text-slate-900 font-extrabold">{set.repsCompleted} reps</span> @ {set.loadKg}kg
+                      <div key={sIdx} className="bg-white dark:bg-slate-900 p-2 rounded-lg border border-slate-200 dark:border-slate-700 shadow-2xs">
+                        <span className="block font-bold text-slate-400 dark:text-slate-500">Série {set.setIndex}</span>
+                        <span className="text-slate-900 dark:text-white font-extrabold">{set.repsCompleted} reps</span> @ {set.loadKg}kg
                       </div>
                     ))}
                   </div>
@@ -131,7 +131,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ history }) => {
             </div>
 
             {selectedSession.notes && (
-              <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs text-slate-700">
+              <div className="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-200 dark:border-slate-700 text-xs text-slate-700 dark:text-slate-300">
                 <strong>Observações da Sessão:</strong> {selectedSession.notes}
               </div>
             )}
@@ -141,4 +141,3 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ history }) => {
     </div>
   );
 };
-

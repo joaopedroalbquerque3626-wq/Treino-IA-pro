@@ -55,39 +55,39 @@ export const ActiveWorkoutMode: React.FC<ActiveWorkoutModeProps> = ({
     };
 
     return (
-      <div className="max-w-xl mx-auto px-4 py-12 text-center space-y-6 animate-in zoom-in-95">
-        <div className="w-20 h-20 rounded-3xl bg-blue-50 border border-blue-100 p-0.5 mx-auto shadow-md flex items-center justify-center">
-          <Trophy className="w-10 h-10 text-blue-600" />
+      <div className="max-w-xl mx-auto px-4 py-12 text-center space-y-6 animate-in zoom-in-95 pb-28">
+        <div className="w-20 h-20 rounded-3xl bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 p-0.5 mx-auto shadow-md flex items-center justify-center">
+          <Trophy className="w-10 h-10 text-blue-600 dark:text-blue-400" />
         </div>
 
         <div>
-          <span className="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
+          <span className="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-full border border-blue-200 dark:border-blue-700">
             TREINO CONCLUÍDO COM SUCESSO!
           </span>
-          <h2 className="text-3xl font-black text-slate-900 mt-3">Excelente Trabalho!</h2>
-          <p className="text-xs text-slate-500 mt-1">
+          <h2 className="text-3xl font-black text-slate-900 dark:text-white mt-3">Excelente Trabalho!</h2>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             Sua constância é a chave para o seu objetivo de {profile.objective}.
           </p>
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 text-left space-y-3 text-xs shadow-sm">
-          <div className="flex justify-between border-b border-slate-200 pb-2">
-            <span className="text-slate-500">Treino realizado:</span>
-            <span className="font-bold text-slate-900">{workoutDay.title}</span>
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 text-left space-y-3 text-xs shadow-xs transition-colors">
+          <div className="flex justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
+            <span className="text-slate-500 dark:text-slate-400">Treino realizado:</span>
+            <span className="font-bold text-slate-900 dark:text-white">{workoutDay.title}</span>
           </div>
-          <div className="flex justify-between border-b border-slate-200 pb-2">
-            <span className="text-slate-500">Duração total:</span>
-            <span className="font-bold text-blue-600">{totalDurationMin} minutos</span>
+          <div className="flex justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
+            <span className="text-slate-500 dark:text-slate-400">Duração total:</span>
+            <span className="font-bold text-blue-600 dark:text-blue-400">{totalDurationMin} minutos</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-slate-500">Exercícios registrados:</span>
-            <span className="font-bold text-blue-600">{workoutDay.exercises.length} exercícios</span>
+            <span className="text-slate-500 dark:text-slate-400">Exercícios registrados:</span>
+            <span className="font-bold text-blue-600 dark:text-blue-400">{workoutDay.exercises.length} exercícios</span>
           </div>
         </div>
 
         <button
           onClick={() => onFinishWorkout(completedSessionData)}
-          className="w-full py-4 rounded-xl bg-slate-900 text-white font-bold text-sm hover:bg-slate-800 shadow-xl shadow-slate-900/10 cursor-pointer transition-all"
+          className="w-full py-4 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white font-bold text-sm shadow-xl shadow-slate-900/10 dark:shadow-blue-600/20 cursor-pointer transition-all"
         >
           SALVAR E VOLTAR AO PAINEL
         </button>
@@ -144,24 +144,24 @@ export const ActiveWorkoutMode: React.FC<ActiveWorkoutModeProps> = ({
       <div className="flex items-center justify-between">
         <button
           onClick={onCancelWorkout}
-          className="flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors cursor-pointer"
+          className="flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Sair do Treino</span>
         </button>
 
-        <span className="text-xs font-bold tracking-wider text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
+        <span className="text-xs font-bold tracking-wider text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-full border border-blue-200 dark:border-blue-800">
           MODO TREINO ATIVO
         </span>
       </div>
 
       {/* Progress status */}
       <div className="space-y-1">
-        <div className="flex justify-between text-xs text-slate-500 font-medium">
+        <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 font-medium">
           <span>Exercício {currentExerciseIndex + 1} de {workoutDay.exercises.length}</span>
           <span>Série {currentSetIndex + 1} / {totalSetsForCurrentEx}</span>
         </div>
-        <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+        <div className="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
           <div
             className="h-full bg-blue-600 transition-all duration-300"
             style={{
@@ -176,24 +176,24 @@ export const ActiveWorkoutMode: React.FC<ActiveWorkoutModeProps> = ({
       </div>
 
       {/* ACTIVE EXERCISE CARD */}
-      <div className="bg-white border border-slate-200 rounded-3xl p-6 space-y-6 shadow-sm relative overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 space-y-6 shadow-xs relative overflow-hidden transition-colors">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded border border-blue-100 uppercase">
+            <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2.5 py-0.5 rounded border border-blue-200 dark:border-blue-800 uppercase">
               {currentExercise.muscleGroup}
             </span>
-            <h2 className="text-2xl font-bold text-slate-900 mt-1">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mt-1">
               {currentExercise.name}
             </h2>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Equipamento: <strong className="text-slate-700">{currentExercise.equipment}</strong>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Equipamento: <strong className="text-slate-700 dark:text-slate-300">{currentExercise.equipment}</strong>
             </p>
           </div>
 
           <button
             onClick={() => onOpenSubstituteModal(currentExercise)}
             title="Substituir Exercício por IA"
-            className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-blue-600 hover:bg-blue-50 transition-colors flex items-center gap-1 text-xs font-bold shrink-0 cursor-pointer"
+            className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-1 text-xs font-bold shrink-0 cursor-pointer"
           >
             <RefreshCw className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Substituir</span>
@@ -201,36 +201,36 @@ export const ActiveWorkoutMode: React.FC<ActiveWorkoutModeProps> = ({
         </div>
 
         {/* Execution Tip */}
-        <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 text-xs text-slate-600 leading-relaxed">
-          <p className="font-bold text-blue-600 mb-0.5">💡 Dica de Execução:</p>
+        <div className="bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+          <p className="font-bold text-blue-600 dark:text-blue-400 mb-0.5">💡 Dica de Execução:</p>
           <p>{currentExercise.executionTip}</p>
         </div>
 
         {/* SET FOCUS PANEL */}
-        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 text-center space-y-4">
+        <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 text-center space-y-4">
           <div className="flex justify-around items-center text-xs">
             <div>
-              <span className="text-slate-400 text-[10px] uppercase font-bold block">Série Atual</span>
-              <span className="text-2xl font-black text-blue-600">
+              <span className="text-slate-400 dark:text-slate-500 text-[10px] uppercase font-bold block">Série Atual</span>
+              <span className="text-2xl font-black text-blue-600 dark:text-blue-400">
                 {currentSetIndex + 1} / {totalSetsForCurrentEx}
               </span>
             </div>
-            <div className="h-8 w-[1px] bg-slate-200" />
+            <div className="h-8 w-[1px] bg-slate-200 dark:bg-slate-700" />
             <div>
-              <span className="text-slate-400 text-[10px] uppercase font-bold block">Meta de Reps</span>
-              <span className="text-2xl font-black text-slate-900">{currentExercise.reps}</span>
+              <span className="text-slate-400 dark:text-slate-500 text-[10px] uppercase font-bold block">Meta de Reps</span>
+              <span className="text-2xl font-black text-slate-900 dark:text-white">{currentExercise.reps}</span>
             </div>
-            <div className="h-8 w-[1px] bg-slate-200" />
+            <div className="h-8 w-[1px] bg-slate-200 dark:bg-slate-700" />
             <div>
-              <span className="text-slate-400 text-[10px] uppercase font-bold block">Descanso</span>
-              <span className="text-2xl font-black text-blue-600">{currentExercise.restSeconds}s</span>
+              <span className="text-slate-400 dark:text-slate-500 text-[10px] uppercase font-bold block">Descanso</span>
+              <span className="text-2xl font-black text-blue-600 dark:text-blue-400">{currentExercise.restSeconds}s</span>
             </div>
           </div>
 
           {/* INPUT FORM FOR CURRENT SET */}
           <div className="grid grid-cols-2 gap-3 pt-2">
-            <div className="bg-white border border-slate-200 p-3 rounded-xl shadow-sm">
-              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-3 rounded-xl shadow-xs">
+              <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">
                 Reps Realizadas
               </label>
               <input
@@ -239,12 +239,12 @@ export const ActiveWorkoutMode: React.FC<ActiveWorkoutModeProps> = ({
                 max={100}
                 value={repsDone}
                 onChange={(e) => setRepsDone(Number(e.target.value))}
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-center text-lg font-black text-slate-900 focus:outline-none focus:border-blue-600"
+                className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2 text-center text-lg font-black text-slate-900 dark:text-white focus:outline-none focus:border-blue-600 dark:focus:border-blue-500"
               />
             </div>
 
-            <div className="bg-white border border-slate-200 p-3 rounded-xl shadow-sm">
-              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-3 rounded-xl shadow-xs">
+              <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">
                 Carga (kg)
               </label>
               <input
@@ -253,7 +253,7 @@ export const ActiveWorkoutMode: React.FC<ActiveWorkoutModeProps> = ({
                 max={500}
                 value={loadKg}
                 onChange={(e) => setLoadKg(Number(e.target.value))}
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-center text-lg font-black text-slate-900 focus:outline-none focus:border-blue-600"
+                className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2 text-center text-lg font-black text-slate-900 dark:text-white focus:outline-none focus:border-blue-600 dark:focus:border-blue-500"
               />
             </div>
           </div>
@@ -261,7 +261,7 @@ export const ActiveWorkoutMode: React.FC<ActiveWorkoutModeProps> = ({
           {/* CONCLUIR SÉRIE CTA BUTTON */}
           <button
             onClick={handleCompleteSet}
-            className="w-full py-4 rounded-xl bg-slate-900 text-white font-bold text-sm hover:bg-slate-800 active:scale-95 transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full py-4 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white font-bold text-sm active:scale-95 transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
           >
             <CheckCircle2 className="w-5 h-5 text-white" />
             <span>CONCLUIR SÉRIE ({currentSetIndex + 1}/{totalSetsForCurrentEx})</span>
@@ -272,15 +272,15 @@ export const ActiveWorkoutMode: React.FC<ActiveWorkoutModeProps> = ({
         <div className="flex justify-between items-center gap-2">
           <button
             onClick={() => onOpenRestTimer(currentExercise.restSeconds || 60)}
-            className="px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+            className="px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
           >
-            <Timer className="w-4 h-4 text-blue-600" />
+            <Timer className="w-4 h-4 text-blue-600 dark:text-blue-400" />
             <span>Iniciar Timer ({currentExercise.restSeconds}s)</span>
           </button>
 
           <button
             onClick={handleNextExercise}
-            className="px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm"
+            className="px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
           >
             <span>Próximo Exercício</span>
             <ChevronRight className="w-4 h-4" />
@@ -289,8 +289,8 @@ export const ActiveWorkoutMode: React.FC<ActiveWorkoutModeProps> = ({
       </div>
 
       {/* Notes Field */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-2 shadow-sm">
-        <label className="block text-xs font-bold text-slate-700">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 space-y-2 shadow-xs transition-colors">
+        <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
           Observações desta sessão:
         </label>
         <textarea
@@ -298,10 +298,9 @@ export const ActiveWorkoutMode: React.FC<ActiveWorkoutModeProps> = ({
           placeholder="Ex: Senti bom pump no peitoral, aumentei a carga na 3ª série..."
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-900 focus:outline-none focus:border-blue-600"
+          className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-blue-600 dark:focus:border-blue-500"
         />
       </div>
     </div>
   );
 };
-
