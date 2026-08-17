@@ -95,7 +95,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       {profile.location}
                     </span>
                     <span className="px-3 py-1 bg-green-50 text-green-600 rounded-full text-xs font-semibold uppercase">
-                      {profile.experienceLevel}
+                      {profile.experience}
                     </span>
                   </div>
                 </div>

@@ -23,6 +23,7 @@ import { CalendarView } from './components/CalendarView';
 import { HistoryView } from './components/HistoryView';
 import { ProfileView } from './components/ProfileView';
 import { AICoachChat } from './components/AICoachChat';
+import { NotificationsModal } from './components/NotificationsModal';
 import {
   fetchAIPlanGeneration,
   generateLocalWorkoutPlan,
@@ -83,6 +84,7 @@ export default function App() {
 
   // MODAL STATES
   const [safetyModalOpen, setSafetyModalOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [restTimerState, setRestTimerState] = useState<{ isOpen: boolean; seconds: number }>({
     isOpen: false,
     seconds: 60,
@@ -183,6 +185,47 @@ export default function App() {
     }
   };
 
+  // DEMO LOGIN HANDLER
+  const handleLoginDemo = () => {
+    if (profile && workoutPlan) {
+      setActiveTab('dashboard');
+      return;
+    }
+
+    const demoProfile: UserProfile = {
+      id: `usr_demo_${Date.now()}`,
+      name: 'Lucas Silva',
+      age: 28,
+      height: 178,
+      weight: 76,
+      objective: 'Ganho de massa muscular',
+      experience: 'Intermediário',
+      location: 'Academia',
+      equipment: ['Anilhas e Halteres', 'Máquinas de Academia', 'Barra Fixa', 'Banco Inclinável'],
+      daysPerWeek: 4,
+      sessionTimeMin: 55,
+      preferredExercises: 'Supino reto, puxada frontal, agachamento livre',
+      avoidExercises: '',
+      observations: 'Foco em hipertrofia com boa progressão de cargas',
+      healthSafety: {
+        injuries: '',
+        persistentPain: '',
+        diseases: '',
+        recentSurgeries: '',
+        physicalLimitations: '',
+        exerciseSymptoms: '',
+        hasCondition: false,
+        acceptedTerms: true,
+      },
+      createdAt: new Date().toISOString(),
+    };
+
+    const demoPlan = generateLocalWorkoutPlan(demoProfile);
+    setProfile(demoProfile);
+    setWorkoutPlan(demoPlan);
+    setActiveTab('dashboard');
+  };
+
   // REGENERATE PLAN HANDLER
   const handleRegeneratePlan = async () => {
     if (!profile) return;
@@ -212,7 +255,7 @@ export default function App() {
     }
   };
 
-  // START WORKOUT SESSiON HANDLER
+  // START WORKOUT SESSION HANDLER
   const handleStartWorkout = (dayId: string) => {
     if (!workoutPlan) return;
     const targetDay = workoutPlan.days.find((d) => d.id === dayId);
@@ -259,6 +302,8 @@ export default function App() {
         profile={profile}
         activeTab={activeTab}
         onNavigate={setActiveTab}
+        streakDays={computeStreakDays()}
+        onOpenNotifications={() => setNotificationsOpen(true)}
         onOpenSafety={() => setSafetyModalOpen(true)}
       />
 
@@ -267,19 +312,17 @@ export default function App() {
         {/* LANDING PAGE */}
         {activeTab === 'landing' && (
           <LandingPage
-            onStart={() => {
-              if (profile) {
-                setActiveTab('dashboard');
-              } else {
-                setActiveTab('questionnaire');
-              }
-            }}
+            onStartQuestionnaire={() => setActiveTab('questionnaire')}
+            onLoginDemo={handleLoginDemo}
           />
         )}
 
         {/* QUESTIONNAIRE WIZARD */}
         {activeTab === 'questionnaire' && (
-          <QuestionnaireWizard onComplete={handleQuestionnaireComplete} />
+          <QuestionnaireWizard
+            onComplete={handleQuestionnaireComplete}
+            onCancel={() => setActiveTab(profile ? 'dashboard' : 'landing')}
+          />
         )}
 
         {/* DASHBOARD */}
@@ -361,6 +404,15 @@ export default function App() {
       {profile && activeTab !== 'landing' && activeTab !== 'questionnaire' && activeTab !== 'active-workout' && (
         <BottomNav activeTab={activeTab} onNavigate={setActiveTab} />
       )}
+
+      {/* NOTIFICATIONS MODAL */}
+      <NotificationsModal
+        isOpen={notificationsOpen}
+        onClose={() => setNotificationsOpen(false)}
+        profile={profile}
+        streakDays={computeStreakDays()}
+        onNavigate={setActiveTab}
+      />
 
       {/* SAFETY DISCLAIMER MODAL */}
       <SafetyDisclaimerModal
