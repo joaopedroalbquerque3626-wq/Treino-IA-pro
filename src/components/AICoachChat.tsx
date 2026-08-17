@@ -1,195 +1,216 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Bot, Send, Sparkles, User, RefreshCw, MessageSquare } from 'lucide-react';
-import { UserProfile, WorkoutPlan, AIChatMessage } from '../types';
+import { Send, Bot, User, Loader2 } from 'lucide-react';
+import { AIChatMessage, UserProfile, WorkoutPlan } from '../types';
 import { fetchAIChatResponse } from '../services/workoutEngine';
 
 interface AICoachChatProps {
   profile: UserProfile;
-  currentPlan: WorkoutPlan | null;
+  currentPlan?: WorkoutPlan | null;
+  workoutPlan?: WorkoutPlan | null;
+  messages?: AIChatMessage[];
+  onSendMessage?: (text: string) => void;
+  isLoading?: boolean;
 }
 
-export const AICoachChat: React.FC<AICoachChatProps> = ({ profile, currentPlan }) => {
-  const [messages, setMessages] = useState<AIChatMessage[]>([
+export const AICoachChat: React.FC<AICoachChatProps> = ({
+  profile,
+  currentPlan,
+  workoutPlan,
+  messages: externalMessages,
+  onSendMessage: externalOnSendMessage,
+  isLoading: externalIsLoading,
+}) => {
+  const plan = currentPlan || workoutPlan || null;
+
+  const [internalMessages, setInternalMessages] = useState<AIChatMessage[]>(() => [
     {
-      id: 'welcome',
+      id: 'msg_welcome',
       sender: 'assistant',
-      text: `Olá ${profile.name}! Sou o **ASSISTENTE TREINO IA**, seu consultor inteligente de treinamento. 🤖\n\nEstou sincronizado com o seu plano de **${profile.objective}** (${profile.experience}) para tirar dúvidas sobre biomecânica, descanso entre séries, progressão de carga e substituições. Como posso te ajudar hoje?`,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      text: `Olá, ${profile.name}! Sou o seu IA Coach de Treinamento. Posso te ajudar com execução de exercícios, sugestões de cargas, substituições para máquinas ocupadas e dicas para seu objetivo de ${profile.objective}. Como posso te ajudar hoje?`,
+      timestamp: 'Agora',
     },
   ]);
 
-  const [inputMessage, setInputMessage] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [internalLoading, setInternalLoading] = useState(false);
+  const [inputText, setInputText] = useState('');
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const chatEndRef = useRef<HTMLDivElement>(null);
+  const activeMessages = externalMessages || internalMessages;
+  const activeLoading = externalIsLoading !== undefined ? externalIsLoading : internalLoading;
 
-  const quickPrompts = [
-    'Qual é meu treino de hoje?',
-    'Como progredir a carga com segurança?',
-    'Posso substituir algum exercício?',
-    'Quanto tempo de descanso devo fazer?',
-    'Dicas para melhorar minha recuperação?',
-  ];
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, loading]);
+    scrollToBottom();
+  }, [activeMessages, activeLoading]);
 
-  const handleSendMessage = async (textToSend?: string) => {
-    const text = textToSend || inputMessage;
-    if (!text.trim() || loading) return;
+  const handleSendMessage = async (textToSend: string) => {
+    if (!textToSend.trim() || activeLoading) return;
+
+    if (externalOnSendMessage) {
+      externalOnSendMessage(textToSend);
+      return;
+    }
 
     const userMsg: AIChatMessage = {
-      id: `usr_${Date.now()}`,
+      id: `msg_user_${Date.now()}`,
       sender: 'user',
-      text: text.trim(),
+      text: textToSend,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     };
 
-    setMessages((prev) => [...prev, userMsg]);
-    if (!textToSend) setInputMessage('');
-    setLoading(true);
+    setInternalMessages((prev) => [...prev, userMsg]);
+    setInputText('');
+    setInternalLoading(true);
 
     try {
-      const replyText = await fetchAIChatResponse(text, profile, currentPlan || undefined);
-      const assistantMsg: AIChatMessage = {
-        id: `ast_${Date.now()}`,
+      const aiReplyText = await fetchAIChatResponse(textToSend, profile, plan || undefined);
+      const aiMsg: AIChatMessage = {
+        id: `msg_ai_${Date.now()}`,
         sender: 'assistant',
-        text: replyText,
+        text: aiReplyText,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
-      setMessages((prev) => [...prev, assistantMsg]);
+      setInternalMessages((prev) => [...prev, aiMsg]);
     } catch (err) {
-      console.error(err);
+      console.error('Chat error:', err);
+      const errMsg: AIChatMessage = {
+        id: `msg_err_${Date.now()}`,
+        sender: 'assistant',
+        text: 'Não consegui processar a resposta no momento. Pode tentar novamente?',
+        timestamp: 'Agora',
+      };
+      setInternalMessages((prev) => [...prev, errMsg]);
     } finally {
-      setLoading(false);
+      setInternalLoading(false);
     }
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleSendMessage(inputText);
+  };
+
+  const quickPrompts = [
+    'Como progredir a carga com segurança?',
+    'Posso trocar agachamento por leg press?',
+    'O que comer antes e depois do treino?',
+    'Sinto desconforto no ombro ao desenvolver.',
+  ];
+
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 space-y-6 animate-in fade-in pb-28">
-      {/* Header Banner */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs transition-colors">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 flex items-center justify-center text-blue-600 dark:text-blue-400 shrink-0">
-            <Bot className="w-6 h-6" />
+    <div className="max-w-4xl mx-auto px-3 sm:px-6 py-4 sm:py-6 flex flex-col h-[calc(100dvh-140px)] sm:h-[calc(100vh-140px)] animate-in fade-in">
+      {/* Header section */}
+      <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800 shrink-0">
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-600/25 shrink-0">
+            <Bot className="w-5 h-5" />
           </div>
           <div>
-            <div className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2.5 py-0.5 rounded-full border border-blue-200 dark:border-blue-700 mb-1">
-              <Sparkles className="w-3 h-3" />
-              <span>IA Sincronizada ao seu Plano</span>
+            <div className="flex items-center gap-2">
+              <h1 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white">
+                IA Coach de Treinamento
+              </h1>
+              <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
             </div>
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
-              Assistente TREINO IA
-            </h1>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Pergunte sobre exercícios, execução, cargas e rotina.
+            <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400">
+              Dúvidas biomecânicas, execuções e dicas 24h
             </p>
           </div>
         </div>
-
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700">
-            🎯 {profile.objective}
-          </span>
-        </div>
       </div>
 
-      {/* Quick Prompts Carousel */}
-      <div className="space-y-2">
-        <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-          Perguntas Frequentes:
-        </p>
-        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
-          {quickPrompts.map((prompt, idx) => (
-            <button
-              key={idx}
-              onClick={() => handleSendMessage(prompt)}
-              className="px-3.5 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 hover:border-blue-300 dark:hover:border-blue-700 text-xs font-medium whitespace-nowrap shrink-0 transition-all cursor-pointer shadow-xs"
+      {/* Messages Container */}
+      <div className="flex-1 overflow-y-auto py-4 space-y-3.5 pr-1 scrollbar-none">
+        {activeMessages.map((msg) => {
+          const isUser = msg.sender === 'user';
+          return (
+            <div
+              key={msg.id}
+              className={`flex items-start gap-2.5 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}
             >
-              💬 {prompt}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* CHAT MESSAGES CONTAINER */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 sm:p-6 min-h-[480px] max-h-[620px] flex flex-col justify-between shadow-xs transition-colors">
-        <div className="space-y-4 overflow-y-auto pr-1">
-          {messages.map((msg) => {
-            const isUser = msg.sender === 'user';
-            return (
               <div
-                key={msg.id}
-                className={`flex gap-3 ${isUser ? 'justify-end' : 'justify-start'}`}
+                className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
+                  isUser
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-slate-800 text-blue-400 border border-slate-700'
+                }`}
               >
-                {!isUser && (
-                  <div className="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 mt-1">
-                    <Bot className="w-4 h-4" />
-                  </div>
-                )}
+                {isUser ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
+              </div>
 
-                <div
-                  className={`max-w-[85%] sm:max-w-[75%] rounded-2xl p-4 text-xs leading-relaxed ${
-                    isUser
-                      ? 'bg-blue-600 text-white font-medium rounded-tr-none shadow-xs'
-                      : 'bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-tl-none space-y-2'
+              <div
+                className={`max-w-[85%] sm:max-w-[75%] rounded-2xl p-3 sm:p-4 text-xs leading-relaxed ${
+                  isUser
+                    ? 'bg-blue-600 text-white rounded-tr-none shadow-md shadow-blue-600/10'
+                    : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 rounded-tl-none shadow-xs'
+                }`}
+              >
+                <p className="whitespace-pre-wrap">{msg.text}</p>
+                <span
+                  className={`text-[9px] block mt-1.5 ${
+                    isUser ? 'text-blue-200 text-right' : 'text-slate-400 dark:text-slate-500'
                   }`}
                 >
-                  <p className="whitespace-pre-line">{msg.text}</p>
-                  <span
-                    className={`block text-[9px] mt-1.5 ${
-                      isUser ? 'text-blue-100 text-right' : 'text-slate-400 dark:text-slate-500'
-                    }`}
-                  >
-                    {msg.timestamp}
-                  </span>
-                </div>
-
-                {isUser && (
-                  <div className="w-8 h-8 rounded-xl bg-slate-900 dark:bg-blue-600 text-white font-bold flex items-center justify-center shrink-0 mt-1 text-xs">
-                    {profile.name.charAt(0).toUpperCase()}
-                  </div>
-                )}
+                  {msg.timestamp}
+                </span>
               </div>
-            );
-          })}
-
-          {loading && (
-            <div className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 p-3 rounded-2xl border border-blue-200 dark:border-blue-700 w-fit">
-              <RefreshCw className="w-4 h-4 animate-spin" />
-              <span>O Assistente IA está analisando seu perfil...</span>
             </div>
-          )}
+          );
+        })}
 
-          <div ref={chatEndRef} />
-        </div>
+        {activeLoading && (
+          <div className="flex items-start gap-2.5">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-800 text-blue-400 border border-slate-700 flex items-center justify-center shrink-0">
+              <Bot className="w-4 h-4" />
+            </div>
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl rounded-tl-none p-3.5 flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 shadow-xs">
+              <Loader2 className="w-4 h-4 text-blue-600 animate-spin" />
+              <span>O IA Coach está digitando...</span>
+            </div>
+          </div>
+        )}
 
-        {/* INPUT FORM */}
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSendMessage();
-          }}
-          className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-800 flex gap-2"
-        >
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Quick Prompts Suggestions (Smooth horizontal scrolling on mobile) */}
+      <div className="py-2 overflow-x-auto scrollbar-none flex gap-1.5 shrink-0 -mx-1 px-1">
+        {quickPrompts.map((prompt, idx) => (
+          <button
+            key={idx}
+            type="button"
+            onClick={() => handleSendMessage(prompt)}
+            className="text-[11px] font-medium bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-blue-400 dark:hover:border-blue-600 text-slate-700 dark:text-slate-300 px-3 py-1.5 rounded-full whitespace-nowrap transition-colors cursor-pointer shrink-0 shadow-2xs active:scale-95"
+          >
+            {prompt}
+          </button>
+        ))}
+      </div>
+
+      {/* Input Message Form */}
+      <form onSubmit={handleSubmit} className="pt-2 shrink-0">
+        <div className="flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-1.5 shadow-xs focus-within:border-blue-600 transition-colors">
           <input
             type="text"
-            placeholder="Digite sua dúvida sobre treinos, cargas ou descanso..."
-            value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
-            className="flex-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-blue-600 dark:focus:border-blue-500 transition-colors"
+            placeholder="Pergunte sobre exercícios, execução ou cargas..."
+            value={inputText}
+            onChange={(e) => setInputText(e.target.value)}
+            disabled={activeLoading}
+            className="flex-1 bg-transparent px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none placeholder:text-slate-400"
           />
           <button
             type="submit"
-            disabled={loading || !inputMessage.trim()}
-            className="px-5 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white font-bold text-xs disabled:opacity-40 flex items-center gap-1.5 transition-all cursor-pointer shadow-xs"
+            disabled={!inputText.trim() || activeLoading}
+            aria-label="Enviar mensagem"
+            className="w-9 h-9 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-40 text-white flex items-center justify-center transition-all cursor-pointer shrink-0 shadow-md shadow-blue-600/20 active:scale-95"
           >
             <Send className="w-4 h-4" />
-            <span className="hidden sm:inline">Enviar</span>
           </button>
-        </form>
-      </div>
+        </div>
+      </form>
     </div>
   );
 };

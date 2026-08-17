@@ -376,6 +376,7 @@ export default function App() {
           <LandingPage
             onStartQuestionnaire={() => setActiveTab('questionnaire')}
             onLoginDemo={handleLoginDemo}
+            onOpenSafety={() => setSafetyModalOpen(true)}
           />
         )}
 
@@ -430,8 +431,7 @@ export default function App() {
             profile={profile}
             evolutionLogs={evolutionLogs}
             history={history}
-            progressionSuggestions={computeProgressionSuggestions()}
-            onAddLog={(newLog) => setEvolutionLogs((prev) => [...prev, newLog])}
+            onAddEvolutionLog={(newLog) => setEvolutionLogs((prev) => [...prev, newLog])}
           />
         )}
 

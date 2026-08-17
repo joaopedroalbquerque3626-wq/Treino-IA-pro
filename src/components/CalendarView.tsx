@@ -1,205 +1,233 @@
 import React, { useState } from 'react';
-import { Calendar as CalendarIcon, CheckCircle2, Clock, ChevronLeft, ChevronRight, X } from 'lucide-react';
-import { CompletedSession } from '../types';
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, CheckCircle2, Dumbbell, Clock } from 'lucide-react';
+import { CompletedSession, WorkoutPlan } from '../types';
 
 interface CalendarViewProps {
   history: CompletedSession[];
+  workoutPlan: WorkoutPlan | null;
+  onSelectDateSession?: (session: CompletedSession) => void;
 }
 
-export const CalendarView: React.FC<CalendarViewProps> = ({ history }) => {
+export const CalendarView: React.FC<CalendarViewProps> = ({ history, workoutPlan }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [selectedSession, setSelectedSession] = useState<CompletedSession | null>(null);
+  const [selectedDaySessions, setSelectedDaySessions] = useState<CompletedSession[] | null>(null);
+  const [selectedDateStr, setSelectedDateStr] = useState<string>('');
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
 
-  const firstDayOfMonth = new Date(year, month, 1).getDay();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-
   const monthNames = [
     'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-    'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+    'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
   ];
+
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const firstDayIndex = new Date(year, month, 1).getDay();
 
   const handlePrevMonth = () => {
     setCurrentDate(new Date(year, month - 1, 1));
+    setSelectedDaySessions(null);
   };
 
   const handleNextMonth = () => {
     setCurrentDate(new Date(year, month + 1, 1));
+    setSelectedDaySessions(null);
   };
 
-  const calendarDays = [];
-  for (let i = 0; i < firstDayOfMonth; i++) {
-    calendarDays.push(null);
-  }
-  for (let d = 1; d <= daysInMonth; d++) {
-    calendarDays.push(d);
-  }
+  // Group history by date (YYYY-MM-DD)
+  const historyByDate: Record<string, CompletedSession[]> = {};
+  history.forEach((session) => {
+    if (!historyByDate[session.date]) {
+      historyByDate[session.date] = [];
+    }
+    historyByDate[session.date].push(session);
+  });
 
-  const getSessionsForDay = (day: number) => {
-    const monthStr = String(month + 1).padStart(2, '0');
-    const dayStr = String(day).padStart(2, '0');
-    const dateKey = `${year}-${monthStr}-${dayStr}`;
-    return history.filter((s) => s.date === dateKey);
+  const handleDayClick = (dayNumber: number) => {
+    const formattedDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(dayNumber).padStart(2, '0')}`;
+    const sessions = historyByDate[formattedDate] || [];
+    setSelectedDateStr(formattedDate);
+    setSelectedDaySessions(sessions);
   };
+
+  const totalThisMonth = history.filter((s) => {
+    const d = new Date(s.date);
+    return d.getFullYear() === year && d.getMonth() === month;
+  }).length;
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-6 space-y-6 animate-in fade-in pb-28">
-      {/* Header */}
-      <div className="bg-slate-900 text-white rounded-3xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xl border border-slate-800">
+    <div className="max-w-4xl mx-auto px-3 sm:px-6 py-5 sm:py-8 space-y-5 sm:space-y-6 animate-in fade-in pb-28">
+      {/* Header section */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-blue-400 bg-blue-500/20 px-3 py-1 rounded-full border border-blue-500/30 mb-2">
-            <CalendarIcon className="w-3.5 h-3.5" />
-            <span>CALENDÁRIO DE TREINAMENTO</span>
-          </div>
-          <h1 className="text-2xl font-black text-white">Frequência Semanal e Histórico</h1>
-          <p className="text-xs text-slate-300 mt-1">
-            Clique em qualquer data para revisar o treino realizado.
+          <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2.5 py-0.5 rounded-full border border-blue-200 dark:border-blue-700 inline-block">
+            CALENDÁRIO & FREQUÊNCIA
+          </span>
+          <h1 className="text-xl sm:text-3xl font-black text-slate-900 dark:text-white mt-1 sm:mt-2">
+            Histórico Mensal
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+            Acompanhe a sua constância e sessões registradas.
           </p>
         </div>
 
-        {/* Legend */}
-        <div className="flex items-center gap-4 text-xs text-slate-200 bg-slate-800 p-3 rounded-2xl border border-slate-700">
-          <div className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded-full bg-blue-500" />
-            <span>✓ Concluído</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded-full bg-slate-700 border border-slate-500" />
-            <span>○ Planejado</span>
-          </div>
+        <div className="bg-white dark:bg-slate-900 px-3.5 py-2 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs flex items-center gap-2 self-start sm:self-auto">
+          <CalendarIcon className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+          <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
+            {totalThisMonth} {totalThisMonth === 1 ? 'treino realizado' : 'treinos realizados'}
+          </span>
         </div>
       </div>
 
-      {/* MONTHLY CALENDAR GRID */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 space-y-4 shadow-xs transition-colors">
-        {/* Month Selector Controls */}
-        <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+      {/* Calendar Card */}
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 sm:p-6 shadow-xs space-y-4 transition-colors">
+        {/* Month Navigation */}
+        <div className="flex items-center justify-between">
+          <button
+            onClick={handlePrevMonth}
+            className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors cursor-pointer active:scale-95"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+          
+          <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
             {monthNames[month]} {year}
           </h2>
 
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handlePrevMonth}
-              className="p-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <button
-              onClick={handleNextMonth}
-              className="p-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
+          <button
+            onClick={handleNextMonth}
+            className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors cursor-pointer active:scale-95"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
         </div>
 
-        {/* Weekday Headers */}
-        <div className="grid grid-cols-7 gap-2 text-center text-xs font-bold text-slate-500 dark:text-slate-400">
-          {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map((w) => (
-            <div key={w} className="py-2">{w}</div>
+        {/* Days of week header */}
+        <div className="grid grid-cols-7 text-center text-[10px] sm:text-xs font-extrabold text-slate-400 dark:text-slate-500 py-1">
+          <span>DOM</span>
+          <span>SEG</span>
+          <span>TER</span>
+          <span>QUA</span>
+          <span>QUI</span>
+          <span>SEX</span>
+          <span>SÁB</span>
+        </div>
+
+        {/* Grid Cells */}
+        <div className="grid grid-cols-7 gap-1 sm:gap-2">
+          {/* Empty cells before month start */}
+          {Array.from({ length: firstDayIndex }).map((_, i) => (
+            <div key={`empty-${i}`} className="min-h-[44px] sm:min-h-[64px] rounded-xl bg-slate-50/50 dark:bg-slate-800/20" />
           ))}
-        </div>
 
-        {/* Days Grid */}
-        <div className="grid grid-cols-7 gap-2">
-          {calendarDays.map((day, idx) => {
-            if (day === null) {
-              return <div key={`empty_${idx}`} className="h-16 rounded-2xl bg-slate-50/50 dark:bg-slate-800/30" />;
-            }
-
-            const sessions = getSessionsForDay(day);
-            const isCompleted = sessions.length > 0;
+          {/* Actual Month Days */}
+          {Array.from({ length: daysInMonth }).map((_, i) => {
+            const dayNum = i + 1;
+            const formattedDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
+            const sessionsForDay = historyByDate[formattedDate] || [];
+            const hasWorkout = sessionsForDay.length > 0;
             const isToday =
-              day === new Date().getDate() &&
-              month === new Date().getMonth() &&
-              year === new Date().getFullYear();
+              new Date().getFullYear() === year &&
+              new Date().getMonth() === month &&
+              new Date().getDate() === dayNum;
+            const isSelected = selectedDateStr === formattedDate;
 
             return (
-              <div
-                key={`day_${day}`}
-                onClick={() => isCompleted && setSelectedSession(sessions[0])}
-                className={`h-16 sm:h-20 rounded-2xl p-2 border flex flex-col justify-between transition-all select-none ${
-                  isCompleted
-                    ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-700 text-slate-900 dark:text-white hover:border-blue-400 cursor-pointer shadow-xs'
-                    : isToday
-                    ? 'bg-white dark:bg-slate-800 border-blue-600 text-slate-900 dark:text-white shadow-xs'
-                    : 'bg-slate-50 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400'
+              <button
+                key={`day-${dayNum}`}
+                type="button"
+                onClick={() => handleDayClick(dayNum)}
+                className={`min-h-[44px] sm:min-h-[64px] p-1 sm:p-2 rounded-xl border text-left flex flex-col justify-between transition-all cursor-pointer select-none active:scale-95 ${
+                  isSelected
+                    ? 'ring-2 ring-blue-600 border-blue-600 bg-blue-50/50 dark:bg-blue-900/30'
+                    : hasWorkout
+                    ? 'bg-blue-50/60 dark:bg-blue-900/20 border-blue-300 dark:border-blue-700/60 hover:border-blue-400'
+                    : 'bg-white dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
                 }`}
               >
-                <div className="flex justify-between items-center text-xs">
-                  <span className={`font-bold ${isToday ? 'text-blue-600 dark:text-blue-400 font-black' : 'text-slate-700 dark:text-slate-300'}`}>
-                    {day}
+                <div className="flex justify-between items-center w-full">
+                  <span
+                    className={`text-[11px] sm:text-xs font-bold ${
+                      isToday
+                        ? 'w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px]'
+                        : 'text-slate-700 dark:text-slate-300'
+                    }`}
+                  >
+                    {dayNum}
                   </span>
-                  {isCompleted && <CheckCircle2 className="w-4 h-4 text-blue-600 dark:text-blue-400" />}
+                  {hasWorkout && (
+                    <CheckCircle2 className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
+                  )}
                 </div>
 
-                {isCompleted && (
-                  <div className="truncate text-[10px] font-bold text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-900/60 px-1.5 py-0.5 rounded border border-blue-200 dark:border-blue-700">
-                    {sessions[0].workoutTitle}
+                {hasWorkout ? (
+                  <div className="mt-0.5 sm:mt-1">
+                    <span className="text-[9px] font-bold text-blue-600 dark:text-blue-400 truncate block leading-none">
+                      {sessionsForDay[0]?.workoutTitle.replace('Treino ', '')}
+                    </span>
                   </div>
+                ) : (
+                  <div className="h-2" />
                 )}
-              </div>
+              </button>
             );
           })}
         </div>
       </div>
 
-      {/* SESSION DETAILS MODAL */}
-      {selectedSession && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full p-6 text-slate-900 dark:text-white shadow-2xl relative space-y-4">
-            <button
-              onClick={() => setSelectedSession(null)}
-              className="absolute top-4 right-4 p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
-            >
-              <X className="w-5 h-5" />
-            </button>
+      {/* Selected Day Workout Details Card */}
+      {selectedDaySessions && (
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 sm:p-6 space-y-3 shadow-xs animate-in fade-in transition-colors">
+          <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <CalendarIcon className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            <span>Detalhes do dia {selectedDateStr}</span>
+          </h3>
 
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-              <span className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
-                Treino Concluído em {selectedSession.date}
-              </span>
-            </div>
-
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white">{selectedSession.workoutTitle}</h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2">
-              <Clock className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-              <span>Duração: {selectedSession.durationMinutes} minutos</span>
-            </p>
-
-            <div className="space-y-3 max-h-[50vh] overflow-y-auto pr-1">
-              <h4 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                Exercícios Realizados:
-              </h4>
-
-              {selectedSession.exerciseLogs.map((ex, idx) => (
-                <div key={idx} className="bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-2">
-                  <div className="flex justify-between text-xs font-bold text-slate-900 dark:text-white">
-                    <span>{ex.exerciseName}</span>
-                    <span className="text-blue-600 dark:text-blue-400">{ex.muscleGroup}</span>
+          {selectedDaySessions.length > 0 ? (
+            <div className="space-y-3">
+              {selectedDaySessions.map((session, idx) => (
+                <div
+                  key={session.id || idx}
+                  className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 space-y-2 text-xs"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Dumbbell className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                      <span className="font-extrabold text-slate-900 dark:text-white text-sm">{session.workoutTitle}</span>
+                    </div>
+                    <span className="text-blue-600 dark:text-blue-400 font-bold flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
+                      {session.durationMinutes} min
+                    </span>
                   </div>
 
-                  <div className="flex flex-wrap gap-2 text-[10px] text-slate-700 dark:text-slate-300">
-                    {ex.sets.map((set, sIdx) => (
-                      <span key={sIdx} className="bg-white dark:bg-slate-900 px-2 py-1 rounded border border-slate-200 dark:border-slate-700 font-medium shadow-2xs">
-                        Série {set.setIndex}: {set.repsCompleted} reps x {set.loadKg}kg
-                      </span>
-                    ))}
-                  </div>
+                  {session.exerciseLogs && session.exerciseLogs.length > 0 && (
+                    <div className="pt-2 border-t border-slate-200 dark:border-slate-700 space-y-1">
+                      <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400">Exercícios realizados:</p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[11px]">
+                        {session.exerciseLogs.map((log, exIdx) => (
+                          <div key={exIdx} className="bg-white dark:bg-slate-900 p-2 rounded-xl border border-slate-200 dark:border-slate-700/50 flex justify-between">
+                            <span className="text-slate-800 dark:text-slate-200 font-medium truncate">{log.exerciseName}</span>
+                            <span className="text-slate-400 font-bold ml-2 shrink-0">{log.sets.length} séries</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {session.notes && (
+                    <p className="text-slate-600 dark:text-slate-300 italic pt-1 text-[11px]">
+                      "{session.notes}"
+                    </p>
+                  )}
                 </div>
               ))}
             </div>
-
-            {selectedSession.notes && (
-              <div className="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-200 dark:border-slate-700 text-xs text-slate-700 dark:text-slate-300">
-                <strong>Observações:</strong> {selectedSession.notes}
-              </div>
-            )}
-          </div>
+          ) : (
+            <p className="text-xs text-slate-500 dark:text-slate-400 py-3 text-center">
+              Nenhuma sessão de treino concluída nesta data selecionada.
+            </p>
+          )}
         </div>
       )}
     </div>

@@ -90,19 +90,19 @@ export const QuestionnaireWizard: React.FC<QuestionnaireWizardProps> = ({ onComp
   };
 
   return (
-    <div className="min-h-[calc(100vh-65px)] bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col justify-between py-8 px-4 transition-colors">
-      <div className="max-w-2xl mx-auto w-full">
+    <div className="min-h-[calc(100vh-65px)] bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col justify-between py-6 px-3 sm:px-6 transition-colors">
+      <div className="max-w-xl mx-auto w-full">
         {/* Header Progress Bar */}
-        <div className="mb-8">
+        <div className="mb-6">
           <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-2 font-medium">
             <button
               onClick={step > 1 ? () => setStep(step - 1) : onCancel}
-              className="flex items-center gap-1 hover:text-slate-800 dark:hover:text-slate-200 transition-colors cursor-pointer"
+              className="flex items-center gap-1 hover:text-slate-800 dark:hover:text-slate-200 transition-colors cursor-pointer py-1"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>{step === 1 ? 'Sair' : 'Anterior'}</span>
             </button>
-            <span>Passo {step} de {totalSteps}</span>
+            <span className="font-bold">Passo {step} de {totalSteps}</span>
           </div>
           <div className="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
             <div
@@ -114,28 +114,28 @@ export const QuestionnaireWizard: React.FC<QuestionnaireWizardProps> = ({ onComp
 
         {/* STEP 1: Personal Identification */}
         {step === 1 && (
-          <div className="space-y-6 animate-in fade-in">
-            <div className="text-center mb-6">
-              <span className="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-full border border-blue-200 dark:border-blue-700">
+          <div className="space-y-5 animate-in fade-in">
+            <div className="text-center mb-4">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-full border border-blue-200 dark:border-blue-700">
                 1. Identificação
               </span>
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-white mt-2">Dados Pessoais</h2>
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mt-2">Dados Pessoais</h2>
               <p className="text-xs text-slate-500 dark:text-slate-400">Para dimensionar seu volume ideal e metabolismo.</p>
             </div>
 
-            <div className="space-y-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-xs transition-colors">
+            <div className="space-y-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 sm:p-6 shadow-xs transition-colors">
               <div>
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Como devemos te chamar?</label>
                 <input
                   type="text"
-                  placeholder="Seu nome completo ou apelido"
+                  placeholder="Seu nome ou apelido"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-blue-600 dark:focus:border-blue-500 transition-colors"
+                  className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-blue-600"
                 />
               </div>
 
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 gap-2 sm:gap-3">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Idade</label>
                   <input
@@ -144,7 +144,7 @@ export const QuestionnaireWizard: React.FC<QuestionnaireWizardProps> = ({ onComp
                     max={100}
                     value={age}
                     onChange={(e) => setAge(Number(e.target.value))}
-                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-3 text-sm text-slate-900 dark:text-white text-center font-bold focus:outline-none focus:border-blue-600 dark:focus:border-blue-500"
+                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-2 py-3 text-xs text-slate-900 dark:text-white text-center font-bold focus:outline-none focus:border-blue-600"
                   />
                 </div>
                 <div>
@@ -155,7 +155,7 @@ export const QuestionnaireWizard: React.FC<QuestionnaireWizardProps> = ({ onComp
                     max={230}
                     value={height}
                     onChange={(e) => setHeight(Number(e.target.value))}
-                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-3 text-sm text-slate-900 dark:text-white text-center font-bold focus:outline-none focus:border-blue-600 dark:focus:border-blue-500"
+                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-2 py-3 text-xs text-slate-900 dark:text-white text-center font-bold focus:outline-none focus:border-blue-600"
                   />
                 </div>
                 <div>
@@ -166,7 +166,7 @@ export const QuestionnaireWizard: React.FC<QuestionnaireWizardProps> = ({ onComp
                     max={250}
                     value={weight}
                     onChange={(e) => setWeight(Number(e.target.value))}
-                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-3 text-sm text-slate-900 dark:text-white text-center font-bold focus:outline-none focus:border-blue-600 dark:focus:border-blue-500"
+                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-2 py-3 text-xs text-slate-900 dark:text-white text-center font-bold focus:outline-none focus:border-blue-600"
                   />
                 </div>
               </div>
@@ -176,15 +176,15 @@ export const QuestionnaireWizard: React.FC<QuestionnaireWizardProps> = ({ onComp
 
         {/* STEP 2: Main Objective & Experience */}
         {step === 2 && (
-          <div className="space-y-6 animate-in fade-in">
-            <div className="text-center mb-6">
-              <span className="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-full border border-blue-200 dark:border-blue-700">
+          <div className="space-y-5 animate-in fade-in">
+            <div className="text-center mb-4">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-full border border-blue-200 dark:border-blue-700">
                 2. Foco e Experiência
               </span>
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-white mt-2">Qual o seu objetivo principal?</h2>
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mt-2">Qual o seu objetivo principal?</h2>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               {(
                 [
                   'Ganho de massa muscular',
@@ -198,30 +198,30 @@ export const QuestionnaireWizard: React.FC<QuestionnaireWizardProps> = ({ onComp
                   key={obj}
                   type="button"
                   onClick={() => setObjective(obj)}
-                  className={`w-full p-4 rounded-xl border text-left flex items-center justify-between transition-all cursor-pointer ${
+                  className={`w-full p-3.5 rounded-2xl border text-left flex items-center justify-between transition-all cursor-pointer active:scale-95 ${
                     objective === obj
-                      ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-500 dark:border-blue-500 text-slate-900 dark:text-white font-bold shadow-xs'
-                      : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700'
+                      ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-500 text-slate-900 dark:text-white font-bold shadow-xs'
+                      : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300'
                   }`}
                 >
-                  <span className="text-sm">{obj}</span>
-                  {objective === obj && <Check className="w-5 h-5 text-blue-600 dark:text-blue-400" />}
+                  <span className="text-xs font-semibold">{obj}</span>
+                  {objective === obj && <Check className="w-4 h-4 text-blue-600 dark:text-blue-400" />}
                 </button>
               ))}
             </div>
 
-            <div className="pt-4 border-t border-slate-200 dark:border-slate-800">
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">Nível de experiência na musculação:</label>
+            <div className="pt-3 border-t border-slate-200 dark:border-slate-800">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">Nível de experiência:</label>
               <div className="grid grid-cols-3 gap-2">
                 {(['Iniciante', 'Intermediário', 'Avançado'] as ExperienceLevel[]).map((lvl) => (
                   <button
                     key={lvl}
                     type="button"
                     onClick={() => setExperience(lvl)}
-                    className={`py-3 px-2 rounded-xl border text-xs font-bold text-center transition-all cursor-pointer ${
+                    className={`py-3 px-2 rounded-xl border text-xs font-bold text-center transition-all cursor-pointer active:scale-95 ${
                       experience === lvl
-                        ? 'bg-slate-900 dark:bg-blue-600 text-white border-slate-900 dark:border-blue-600 shadow-xs'
-                        : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700'
+                        ? 'bg-blue-600 text-white border-blue-600 shadow-xs'
+                        : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300'
                     }`}
                   >
                     {lvl}
@@ -234,26 +234,26 @@ export const QuestionnaireWizard: React.FC<QuestionnaireWizardProps> = ({ onComp
 
         {/* STEP 3: Location & Equipment */}
         {step === 3 && (
-          <div className="space-y-6 animate-in fade-in">
-            <div className="text-center mb-6">
-              <span className="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-full border border-blue-200 dark:border-blue-700">
+          <div className="space-y-5 animate-in fade-in">
+            <div className="text-center mb-4">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-full border border-blue-200 dark:border-blue-700">
                 3. Estrutura
               </span>
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-white mt-2">Onde e com o que vai treinar?</h2>
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mt-2">Onde e com o que vai treinar?</h2>
             </div>
 
             <div>
               <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">Local do treino:</label>
-              <div className="grid grid-cols-3 gap-2 mb-6">
+              <div className="grid grid-cols-3 gap-2 mb-4">
                 {(['Academia', 'Casa', 'Ao ar livre'] as WorkoutLocation[]).map((loc) => (
                   <button
                     key={loc}
                     type="button"
                     onClick={() => setLocation(loc)}
-                    className={`py-3 px-2 rounded-xl border text-xs font-bold text-center transition-all cursor-pointer ${
+                    className={`py-3 px-2 rounded-xl border text-xs font-bold text-center transition-all cursor-pointer active:scale-95 ${
                       location === loc
                         ? 'bg-blue-600 text-white border-blue-600 shadow-xs'
-                        : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700'
+                        : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300'
                     }`}
                   >
                     {loc}
@@ -264,7 +264,7 @@ export const QuestionnaireWizard: React.FC<QuestionnaireWizardProps> = ({ onComp
 
             <div>
               <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">Equipamentos disponíveis:</label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {availableEquipmentOptions.map((eq) => {
                   const isSelected = equipmentList.includes(eq);
                   return (
@@ -272,22 +272,22 @@ export const QuestionnaireWizard: React.FC<QuestionnaireWizardProps> = ({ onComp
                       key={eq}
                       type="button"
                       onClick={() => handleToggleEquipment(eq)}
-                      className={`p-3.5 rounded-xl border text-left text-xs font-semibold flex items-center justify-between transition-all cursor-pointer ${
+                      className={`p-3 rounded-xl border text-left text-xs font-medium flex items-center justify-between transition-all cursor-pointer active:scale-95 ${
                         isSelected
-                          ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-500 dark:border-blue-500 text-slate-900 dark:text-white'
-                          : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700'
+                          ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-500 text-slate-900 dark:text-white font-bold'
+                          : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300'
                       }`}
                     >
                       <div className="flex items-center gap-2">
-                        <Dumbbell className={`w-4 h-4 ${isSelected ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'}`} />
+                        <Dumbbell className={`w-3.5 h-3.5 ${isSelected ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400'}`} />
                         <span>{eq}</span>
                       </div>
                       <div
-                        className={`w-5 h-5 rounded-md border flex items-center justify-center ${
+                        className={`w-4 h-4 rounded-md border flex items-center justify-center ${
                           isSelected ? 'bg-blue-600 border-blue-600 text-white' : 'border-slate-300 dark:border-slate-700'
                         }`}
                       >
-                        {isSelected && <Check className="w-3.5 h-3.5 font-bold" />}
+                        {isSelected && <Check className="w-3 h-3 font-bold" />}
                       </div>
                     </button>
                   );
@@ -299,19 +299,19 @@ export const QuestionnaireWizard: React.FC<QuestionnaireWizardProps> = ({ onComp
 
         {/* STEP 4: Frequency & Duration */}
         {step === 4 && (
-          <div className="space-y-6 animate-in fade-in">
-            <div className="text-center mb-6">
-              <span className="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-full border border-blue-200 dark:border-blue-700">
+          <div className="space-y-5 animate-in fade-in">
+            <div className="text-center mb-4">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-full border border-blue-200 dark:border-blue-700">
                 4. Disponibilidade
               </span>
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-white mt-2">Sua rotina semanal</h2>
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mt-2">Sua rotina semanal</h2>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 space-y-6 shadow-xs transition-colors">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 sm:p-6 space-y-6 shadow-xs transition-colors">
               <div>
                 <div className="flex justify-between items-center mb-2">
                   <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Dias disponíveis por semana:</label>
-                  <span className="text-base font-black text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-3 py-0.5 rounded-lg border border-blue-200 dark:border-blue-700">
+                  <span className="text-sm font-black text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2.5 py-0.5 rounded-lg border border-blue-200 dark:border-blue-700">
                     {daysPerWeek} dias
                   </span>
                 </div>
@@ -333,7 +333,7 @@ export const QuestionnaireWizard: React.FC<QuestionnaireWizardProps> = ({ onComp
               <div>
                 <div className="flex justify-between items-center mb-2">
                   <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Tempo por treino (sessão):</label>
-                  <span className="text-base font-black text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-3 py-0.5 rounded-lg border border-blue-200 dark:border-blue-700">
+                  <span className="text-sm font-black text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2.5 py-0.5 rounded-lg border border-blue-200 dark:border-blue-700">
                     {sessionTimeMin} min
                   </span>
                 </div>
@@ -347,8 +347,8 @@ export const QuestionnaireWizard: React.FC<QuestionnaireWizardProps> = ({ onComp
                   className="w-full accent-blue-600 cursor-pointer h-2 bg-slate-200 dark:bg-slate-700 rounded-lg"
                 />
                 <div className="flex justify-between text-[10px] text-slate-400 dark:text-slate-500 mt-1">
-                  <span>20 min (Curto)</span>
-                  <span>60 min (Padrão)</span>
+                  <span>20 min (Rápido)</span>
+                  <span>50 min (Padrão)</span>
                   <span>120 min (Longo)</span>
                 </div>
               </div>
@@ -358,23 +358,23 @@ export const QuestionnaireWizard: React.FC<QuestionnaireWizardProps> = ({ onComp
 
         {/* STEP 5: Specific Preferences & Avoid List */}
         {step === 5 && (
-          <div className="space-y-6 animate-in fade-in">
-            <div className="text-center mb-6">
-              <span className="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-full border border-blue-200 dark:border-blue-700">
+          <div className="space-y-5 animate-in fade-in">
+            <div className="text-center mb-4">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-full border border-blue-200 dark:border-blue-700">
                 5. Preferências
               </span>
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-white mt-2">Exercícios e Gostos</h2>
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mt-2">Exercícios e Gostos</h2>
             </div>
 
-            <div className="space-y-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-xs transition-colors">
+            <div className="space-y-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 sm:p-6 shadow-xs transition-colors">
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Exercícios que você prefere realizar:</label>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Exercícios que você prefere:</label>
                 <input
                   type="text"
-                  placeholder="Ex: Supino reto, agachamento, puxada frontal..."
+                  placeholder="Ex: Supino reto, puxada frontal, leg press..."
                   value={preferredExercises}
                   onChange={(e) => setPreferredExercises(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-blue-600 dark:focus:border-blue-500"
+                  className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-blue-600"
                 />
               </div>
 
@@ -382,10 +382,10 @@ export const QuestionnaireWizard: React.FC<QuestionnaireWizardProps> = ({ onComp
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Exercícios que deseja EVITAR:</label>
                 <input
                   type="text"
-                  placeholder="Ex: Agachamento livre, barra fixa, afundo..."
+                  placeholder="Ex: Agachamento livre, barra fixa..."
                   value={avoidExercises}
                   onChange={(e) => setAvoidExercises(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-blue-600 dark:focus:border-blue-500"
+                  className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-blue-600"
                 />
               </div>
 
@@ -393,10 +393,10 @@ export const QuestionnaireWizard: React.FC<QuestionnaireWizardProps> = ({ onComp
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Outras observações importantes:</label>
                 <textarea
                   rows={2}
-                  placeholder="Ex: Prefiro focar em braços, sinto cansaço nas costas à noite..."
+                  placeholder="Ex: Prefiro focar em braços..."
                   value={observations}
                   onChange={(e) => setObservations(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-blue-600 dark:focus:border-blue-500"
+                  className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-blue-600"
                 />
               </div>
             </div>
@@ -405,32 +405,32 @@ export const QuestionnaireWizard: React.FC<QuestionnaireWizardProps> = ({ onComp
 
         {/* STEP 6: Health Safety Screening */}
         {step === 6 && (
-          <div className="space-y-6 animate-in fade-in">
-            <div className="text-center mb-6">
-              <span className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 px-3 py-1 rounded-full border border-amber-200 dark:border-amber-700">
+          <div className="space-y-5 animate-in fade-in">
+            <div className="text-center mb-4">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 px-3 py-1 rounded-full border border-amber-200 dark:border-amber-700">
                 6. Segurança & Saúde
               </span>
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-white mt-2">Checkup Preventivo</h2>
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mt-2">Checkup Preventivo</h2>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 space-y-4 shadow-xs transition-colors">
-              <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 rounded-xl p-3 flex items-start gap-3">
-                <ShieldAlert className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-                <p className="text-xs text-amber-900 dark:text-amber-300 font-medium">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 sm:p-6 space-y-4 shadow-xs transition-colors">
+              <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 rounded-2xl p-3 flex items-start gap-2.5">
+                <ShieldAlert className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                <p className="text-xs text-amber-900 dark:text-amber-300 font-medium leading-relaxed">
                   Sua integridade física é nossa prioridade. Informe se possui alguma restrição médica antes do plano ser montado.
                 </p>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-2.5">
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                  Possui alguma lesão recente, dor articular persistente ou recomendação médica?
+                  Possui alguma lesão recente, dor persistente ou recomendação médica?
                 </label>
 
-                <div className="flex gap-3">
+                <div className="flex gap-2">
                   <button
                     type="button"
                     onClick={() => setHasCondition(false)}
-                    className={`flex-1 py-3 px-4 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                    className={`flex-1 py-3 px-3 rounded-xl border text-xs font-bold transition-all cursor-pointer active:scale-95 ${
                       !hasCondition
                         ? 'bg-blue-600 text-white border-blue-600'
                         : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300'
@@ -441,7 +441,7 @@ export const QuestionnaireWizard: React.FC<QuestionnaireWizardProps> = ({ onComp
                   <button
                     type="button"
                     onClick={() => setHasCondition(true)}
-                    className={`flex-1 py-3 px-4 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                    className={`flex-1 py-3 px-3 rounded-xl border text-xs font-bold transition-all cursor-pointer active:scale-95 ${
                       hasCondition
                         ? 'bg-amber-600 text-white border-amber-600'
                         : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300'
@@ -452,24 +452,22 @@ export const QuestionnaireWizard: React.FC<QuestionnaireWizardProps> = ({ onComp
                 </div>
 
                 {hasCondition && (
-                  <div className="space-y-3 pt-2">
-                    <div>
-                      <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
-                        Descreva as lesões ou dores articuladas:
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="Ex: Dor no joelho esquerdo ao dobrar, hérnia de disco lombar..."
-                        value={injuries}
-                        onChange={(e) => setInjuries(e.target.value)}
-                        className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 text-xs text-slate-900 dark:text-white"
-                      />
-                    </div>
+                  <div className="pt-2">
+                    <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                      Descreva as lesões ou dores articulares:
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Ex: Dor no ombro esquerdo, hérnia de disco..."
+                      value={injuries}
+                      onChange={(e) => setInjuries(e.target.value)}
+                      className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 text-xs text-slate-900 dark:text-white"
+                    />
                   </div>
                 )}
               </div>
 
-              <div className="pt-4 border-t border-slate-200 dark:border-slate-800 flex items-start gap-2">
+              <div className="pt-3 border-t border-slate-200 dark:border-slate-800 flex items-start gap-2">
                 <input
                   type="checkbox"
                   id="terms"
@@ -477,8 +475,8 @@ export const QuestionnaireWizard: React.FC<QuestionnaireWizardProps> = ({ onComp
                   onChange={(e) => setAcceptedTerms(e.target.checked)}
                   className="mt-0.5 accent-blue-600"
                 />
-                <label htmlFor="terms" className="text-[11px] text-slate-500 dark:text-slate-400">
-                  Compreendo que este aplicativo é uma ferramenta educativa e que devo consultar um profissional de saúde qualificado antes de realizar adaptações físicas.
+                <label htmlFor="terms" className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
+                  Compreendo que este aplicativo é uma ferramenta educativa e que devo consultar um profissional de saúde qualificado.
                 </label>
               </div>
             </div>
@@ -486,10 +484,10 @@ export const QuestionnaireWizard: React.FC<QuestionnaireWizardProps> = ({ onComp
         )}
 
         {/* Wizard Footer Navigation */}
-        <div className="mt-8 pt-4 border-t border-slate-200 dark:border-slate-800 flex justify-between items-center transition-colors">
+        <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-800 flex justify-between items-center transition-colors">
           <button
             onClick={onCancel}
-            className="text-xs text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 font-medium cursor-pointer"
+            className="text-xs text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 font-semibold cursor-pointer py-1"
           >
             Cancelar
           </button>
@@ -497,7 +495,7 @@ export const QuestionnaireWizard: React.FC<QuestionnaireWizardProps> = ({ onComp
           {step < totalSteps ? (
             <button
               onClick={() => setStep(step + 1)}
-              className="px-6 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white font-bold text-xs flex items-center gap-2 cursor-pointer shadow-md shadow-slate-900/10 dark:shadow-blue-600/20"
+              className="min-h-[46px] px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center gap-2 cursor-pointer shadow-md shadow-blue-600/20 active:scale-95 transition-all"
             >
               <span>Avançar</span>
               <ArrowRight className="w-4 h-4" />
@@ -505,7 +503,7 @@ export const QuestionnaireWizard: React.FC<QuestionnaireWizardProps> = ({ onComp
           ) : (
             <button
               onClick={handleFinish}
-              className="px-8 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-2 cursor-pointer shadow-lg shadow-blue-600/20"
+              className="min-h-[48px] px-6 sm:px-8 py-3 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-black text-xs flex items-center gap-2 cursor-pointer shadow-lg shadow-blue-600/25 active:scale-95 transition-all"
             >
               <Sparkles className="w-4 h-4 text-white" />
               <span>CRIAR MEU PLANO COM IA</span>

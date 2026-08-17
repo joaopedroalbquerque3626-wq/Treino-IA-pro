@@ -110,6 +110,9 @@ export interface EvolutionLog {
   id: string;
   date: string; // "YYYY-MM-DD"
   weightKg: number;
+  benchPressKg?: number;
+  squatKg?: number;
+  deadliftKg?: number;
   chestCm?: number;
   armsCm?: number;
   waistCm?: number;

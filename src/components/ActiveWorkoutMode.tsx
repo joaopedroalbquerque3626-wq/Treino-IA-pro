@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Play, CheckCircle2, ChevronRight, Timer, ArrowLeft, Trophy, RefreshCw } from 'lucide-react';
+import { Play, CheckCircle2, ChevronRight, Timer, ArrowLeft, Trophy, RefreshCw, Plus, Minus } from 'lucide-react';
 import { WorkoutDay, Exercise, UserProfile, CompletedSession, ExerciseSetLog } from '../types';
 
 interface ActiveWorkoutModeProps {
@@ -55,39 +55,39 @@ export const ActiveWorkoutMode: React.FC<ActiveWorkoutModeProps> = ({
     };
 
     return (
-      <div className="max-w-xl mx-auto px-4 py-12 text-center space-y-6 animate-in zoom-in-95 pb-28">
-        <div className="w-20 h-20 rounded-3xl bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 p-0.5 mx-auto shadow-md flex items-center justify-center">
-          <Trophy className="w-10 h-10 text-blue-600 dark:text-blue-400" />
+      <div className="max-w-md mx-auto px-4 py-8 sm:py-12 text-center space-y-5 animate-in zoom-in-95 pb-28">
+        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 mx-auto shadow-md flex items-center justify-center">
+          <Trophy className="w-8 h-8 sm:w-10 sm:h-10 text-blue-600 dark:text-blue-400" />
         </div>
 
         <div>
-          <span className="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-full border border-blue-200 dark:border-blue-700">
+          <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-full border border-blue-200 dark:border-blue-700">
             TREINO CONCLUÍDO COM SUCESSO!
           </span>
-          <h2 className="text-3xl font-black text-slate-900 dark:text-white mt-3">Excelente Trabalho!</h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            Sua constância é a chave para o seu objetivo de {profile.objective}.
+          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mt-2">Excelente Trabalho!</h2>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            Sua constância é a chave para seu objetivo de {profile.objective}.
           </p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 text-left space-y-3 text-xs shadow-xs transition-colors">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 text-left space-y-2.5 text-xs shadow-xs transition-colors">
           <div className="flex justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
             <span className="text-slate-500 dark:text-slate-400">Treino realizado:</span>
-            <span className="font-bold text-slate-900 dark:text-white">{workoutDay.title}</span>
+            <span className="font-bold text-slate-900 dark:text-white truncate max-w-[180px]">{workoutDay.title}</span>
           </div>
           <div className="flex justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
             <span className="text-slate-500 dark:text-slate-400">Duração total:</span>
             <span className="font-bold text-blue-600 dark:text-blue-400">{totalDurationMin} minutos</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-slate-500 dark:text-slate-400">Exercícios registrados:</span>
+            <span className="text-slate-500 dark:text-slate-400">Exercícios feitos:</span>
             <span className="font-bold text-blue-600 dark:text-blue-400">{workoutDay.exercises.length} exercícios</span>
           </div>
         </div>
 
         <button
           onClick={() => onFinishWorkout(completedSessionData)}
-          className="w-full py-4 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white font-bold text-sm shadow-xl shadow-slate-900/10 dark:shadow-blue-600/20 cursor-pointer transition-all"
+          className="w-full min-h-[50px] py-3.5 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-xl shadow-blue-600/25 active:scale-95 cursor-pointer transition-all"
         >
           SALVAR E VOLTAR AO PAINEL
         </button>
@@ -119,7 +119,6 @@ export const ActiveWorkoutMode: React.FC<ActiveWorkoutModeProps> = ({
     if (currentSetIndex + 1 < totalSetsForCurrentEx) {
       setCurrentSetIndex(currentSetIndex + 1);
     } else {
-      // Move to next exercise if exists
       if (currentExerciseIndex + 1 < workoutDay.exercises.length) {
         setCurrentExerciseIndex(currentExerciseIndex + 1);
         setCurrentSetIndex(0);
@@ -139,18 +138,18 @@ export const ActiveWorkoutMode: React.FC<ActiveWorkoutModeProps> = ({
   };
 
   return (
-    <div className="max-w-xl mx-auto px-4 py-6 space-y-6 animate-in fade-in pb-28">
+    <div className="max-w-lg mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-5 animate-in fade-in pb-28">
       {/* Header bar */}
       <div className="flex items-center justify-between">
         <button
           onClick={onCancelWorkout}
-          className="flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors cursor-pointer"
+          className="flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors cursor-pointer py-1"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Sair do Treino</span>
+          <span>Sair</span>
         </button>
 
-        <span className="text-xs font-bold tracking-wider text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-full border border-blue-200 dark:border-blue-800">
+        <span className="text-[10px] sm:text-xs font-bold tracking-wider text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-full border border-blue-200 dark:border-blue-800">
           MODO TREINO ATIVO
         </span>
       </div>
@@ -159,7 +158,7 @@ export const ActiveWorkoutMode: React.FC<ActiveWorkoutModeProps> = ({
       <div className="space-y-1">
         <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 font-medium">
           <span>Exercício {currentExerciseIndex + 1} de {workoutDay.exercises.length}</span>
-          <span>Série {currentSetIndex + 1} / {totalSetsForCurrentEx}</span>
+          <span>Série {currentSetIndex + 1} de {totalSetsForCurrentEx}</span>
         </div>
         <div className="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
           <div
@@ -176,13 +175,13 @@ export const ActiveWorkoutMode: React.FC<ActiveWorkoutModeProps> = ({
       </div>
 
       {/* ACTIVE EXERCISE CARD */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 space-y-6 shadow-xs relative overflow-hidden transition-colors">
-        <div className="flex items-start justify-between gap-3">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 sm:p-6 space-y-4 shadow-xs relative overflow-hidden transition-colors">
+        <div className="flex items-start justify-between gap-2">
           <div>
-            <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2.5 py-0.5 rounded border border-blue-200 dark:border-blue-800 uppercase">
+            <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded border border-blue-200 dark:border-blue-800 uppercase">
               {currentExercise.muscleGroup}
             </span>
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mt-1">
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white mt-1">
               {currentExercise.name}
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
@@ -192,78 +191,112 @@ export const ActiveWorkoutMode: React.FC<ActiveWorkoutModeProps> = ({
 
           <button
             onClick={() => onOpenSubstituteModal(currentExercise)}
-            title="Substituir Exercício por IA"
-            className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-1 text-xs font-bold shrink-0 cursor-pointer"
+            title="Substituir Exercício"
+            className="p-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-1 text-xs font-bold shrink-0 cursor-pointer active:scale-95"
           >
             <RefreshCw className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Substituir</span>
+            <span className="text-[11px]">Trocar</span>
           </button>
         </div>
 
         {/* Execution Tip */}
-        <div className="bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+        <div className="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-2xl border border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
           <p className="font-bold text-blue-600 dark:text-blue-400 mb-0.5">💡 Dica de Execução:</p>
           <p>{currentExercise.executionTip}</p>
         </div>
 
         {/* SET FOCUS PANEL */}
-        <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 text-center space-y-4">
+        <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 text-center space-y-3">
           <div className="flex justify-around items-center text-xs">
             <div>
-              <span className="text-slate-400 dark:text-slate-500 text-[10px] uppercase font-bold block">Série Atual</span>
-              <span className="text-2xl font-black text-blue-600 dark:text-blue-400">
-                {currentSetIndex + 1} / {totalSetsForCurrentEx}
+              <span className="text-slate-400 dark:text-slate-500 text-[9px] uppercase font-bold block">Série</span>
+              <span className="text-xl font-black text-blue-600 dark:text-blue-400">
+                {currentSetIndex + 1}/{totalSetsForCurrentEx}
               </span>
             </div>
-            <div className="h-8 w-[1px] bg-slate-200 dark:bg-slate-700" />
+            <div className="h-7 w-[1px] bg-slate-200 dark:bg-slate-700" />
             <div>
-              <span className="text-slate-400 dark:text-slate-500 text-[10px] uppercase font-bold block">Meta de Reps</span>
-              <span className="text-2xl font-black text-slate-900 dark:text-white">{currentExercise.reps}</span>
+              <span className="text-slate-400 dark:text-slate-500 text-[9px] uppercase font-bold block">Alvo Reps</span>
+              <span className="text-xl font-black text-slate-900 dark:text-white">{currentExercise.reps}</span>
             </div>
-            <div className="h-8 w-[1px] bg-slate-200 dark:bg-slate-700" />
+            <div className="h-7 w-[1px] bg-slate-200 dark:bg-slate-700" />
             <div>
-              <span className="text-slate-400 dark:text-slate-500 text-[10px] uppercase font-bold block">Descanso</span>
-              <span className="text-2xl font-black text-blue-600 dark:text-blue-400">{currentExercise.restSeconds}s</span>
+              <span className="text-slate-400 dark:text-slate-500 text-[9px] uppercase font-bold block">Descanso</span>
+              <span className="text-xl font-black text-blue-600 dark:text-blue-400">{currentExercise.restSeconds}s</span>
             </div>
           </div>
 
-          {/* INPUT FORM FOR CURRENT SET */}
-          <div className="grid grid-cols-2 gap-3 pt-2">
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-3 rounded-xl shadow-xs">
-              <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">
-                Reps Realizadas
+          {/* QUICK STEPPERS / INPUT FORM FOR CURRENT SET */}
+          <div className="grid grid-cols-2 gap-2 sm:gap-3 pt-1">
+            {/* Reps Stepper */}
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-2.5 rounded-2xl shadow-xs">
+              <label className="block text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">
+                Reps Feitas
               </label>
-              <input
-                type="number"
-                min={1}
-                max={100}
-                value={repsDone}
-                onChange={(e) => setRepsDone(Number(e.target.value))}
-                className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2 text-center text-lg font-black text-slate-900 dark:text-white focus:outline-none focus:border-blue-600 dark:focus:border-blue-500"
-              />
+              <div className="flex items-center justify-between gap-1">
+                <button
+                  type="button"
+                  onClick={() => setRepsDone((prev) => Math.max(1, prev - 1))}
+                  className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 flex items-center justify-center font-bold active:scale-95 cursor-pointer"
+                >
+                  <Minus className="w-3.5 h-3.5" />
+                </button>
+                <input
+                  type="number"
+                  min={1}
+                  max={100}
+                  value={repsDone}
+                  onChange={(e) => setRepsDone(Number(e.target.value))}
+                  className="w-12 bg-transparent text-center text-lg font-black text-slate-900 dark:text-white focus:outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => setRepsDone((prev) => prev + 1)}
+                  className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 flex items-center justify-center font-bold active:scale-95 cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-3 rounded-xl shadow-xs">
-              <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">
+            {/* Load Stepper */}
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-2.5 rounded-2xl shadow-xs">
+              <label className="block text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">
                 Carga (kg)
               </label>
-              <input
-                type="number"
-                min={0}
-                max={500}
-                value={loadKg}
-                onChange={(e) => setLoadKg(Number(e.target.value))}
-                className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2 text-center text-lg font-black text-slate-900 dark:text-white focus:outline-none focus:border-blue-600 dark:focus:border-blue-500"
-              />
+              <div className="flex items-center justify-between gap-1">
+                <button
+                  type="button"
+                  onClick={() => setLoadKg((prev) => Math.max(0, prev - 2))}
+                  className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 flex items-center justify-center font-bold active:scale-95 cursor-pointer"
+                >
+                  <Minus className="w-3.5 h-3.5" />
+                </button>
+                <input
+                  type="number"
+                  min={0}
+                  max={500}
+                  value={loadKg}
+                  onChange={(e) => setLoadKg(Number(e.target.value))}
+                  className="w-12 bg-transparent text-center text-lg font-black text-slate-900 dark:text-white focus:outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => setLoadKg((prev) => prev + 2)}
+                  className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 flex items-center justify-center font-bold active:scale-95 cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
           </div>
 
           {/* CONCLUIR SÉRIE CTA BUTTON */}
           <button
             onClick={handleCompleteSet}
-            className="w-full py-4 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white font-bold text-sm active:scale-95 transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full min-h-[50px] py-3.5 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-xs sm:text-sm active:scale-95 transition-all shadow-md shadow-blue-600/25 flex items-center justify-center gap-2 cursor-pointer"
           >
-            <CheckCircle2 className="w-5 h-5 text-white" />
+            <CheckCircle2 className="w-4 h-4 text-white" />
             <span>CONCLUIR SÉRIE ({currentSetIndex + 1}/{totalSetsForCurrentEx})</span>
           </button>
         </div>
@@ -272,33 +305,33 @@ export const ActiveWorkoutMode: React.FC<ActiveWorkoutModeProps> = ({
         <div className="flex justify-between items-center gap-2">
           <button
             onClick={() => onOpenRestTimer(currentExercise.restSeconds || 60)}
-            className="px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+            className="flex-1 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 text-[11px] font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer active:scale-95"
           >
-            <Timer className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-            <span>Iniciar Timer ({currentExercise.restSeconds}s)</span>
+            <Timer className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+            <span>Timer ({currentExercise.restSeconds}s)</span>
           </button>
 
           <button
             onClick={handleNextExercise}
-            className="px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+            className="flex-1 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 text-[11px] font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-2xs active:scale-95"
           >
-            <span>Próximo Exercício</span>
-            <ChevronRight className="w-4 h-4" />
+            <span>Pular Exercício</span>
+            <ChevronRight className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
 
       {/* Notes Field */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 space-y-2 shadow-xs transition-colors">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 space-y-1.5 shadow-xs transition-colors">
         <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
           Observações desta sessão:
         </label>
         <textarea
           rows={2}
-          placeholder="Ex: Senti bom pump no peitoral, aumentei a carga na 3ª série..."
+          placeholder="Ex: Senti bom pump, aumentei a carga na 3ª série..."
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-blue-600 dark:focus:border-blue-500"
+          className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-blue-600 dark:focus:border-blue-500"
         />
       </div>
     </div>
