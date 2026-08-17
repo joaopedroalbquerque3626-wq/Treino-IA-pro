@@ -22,9 +22,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   onSelectTheme,
 }) => {
   const [name, setName] = useState(profile.name);
-  const [age, setAge] = useState(profile.age);
-  const [height, setHeight] = useState(profile.height);
-  const [weight, setWeight] = useState(profile.weight);
+  const [age, setAge] = useState<number | string>(profile.age);
+  const [height, setHeight] = useState<number | string>(profile.height);
+  const [weight, setWeight] = useState<number | string>(profile.weight);
 
   const [objective, setObjective] = useState<Objective>(profile.objective);
   const [experience, setExperience] = useState<ExperienceLevel>(profile.experience);
@@ -109,7 +109,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           className="w-full sm:w-auto min-h-[44px] px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md shadow-blue-600/20 active:scale-95 transition-all cursor-pointer"
         >
           <RefreshCw className={`w-4 h-4 ${loadingRegen ? 'animate-spin' : ''}`} />
-          <span>RECALCULAR PLANO COM IA</span>
+          <span>RECALCULAR PLANO DE TREINO</span>
         </button>
       </div>
 
@@ -201,7 +201,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 <input
                   type="number"
                   value={age}
-                  onChange={(e) => setAge(Number(e.target.value))}
+                  onChange={(e) => setAge(e.target.value)}
+                  placeholder="25"
                   className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-xs font-bold text-center text-slate-900 dark:text-white focus:outline-none focus:border-blue-600"
                 />
               </div>
@@ -210,7 +211,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 <input
                   type="number"
                   value={height}
-                  onChange={(e) => setHeight(Number(e.target.value))}
+                  onChange={(e) => setHeight(e.target.value)}
+                  placeholder="175"
                   className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-xs font-bold text-center text-slate-900 dark:text-white focus:outline-none focus:border-blue-600"
                 />
               </div>
@@ -219,7 +221,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 <input
                   type="number"
                   value={weight}
-                  onChange={(e) => setWeight(Number(e.target.value))}
+                  onChange={(e) => setWeight(e.target.value)}
+                  placeholder="70"
                   className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-xs font-bold text-center text-slate-900 dark:text-white focus:outline-none focus:border-blue-600"
                 />
               </div>

@@ -13,9 +13,9 @@ export const QuestionnaireWizard: React.FC<QuestionnaireWizardProps> = ({ onComp
 
   // Form State
   const [name, setName] = useState('');
-  const [age, setAge] = useState<number>(25);
-  const [height, setHeight] = useState<number>(175);
-  const [weight, setWeight] = useState<number>(70);
+  const [age, setAge] = useState<number | string>(25);
+  const [height, setHeight] = useState<number | string>(175);
+  const [weight, setWeight] = useState<number | string>(70);
 
   const [objective, setObjective] = useState<Objective>('Ganho de massa muscular');
   const [experience, setExperience] = useState<ExperienceLevel>('Iniciante');
@@ -143,7 +143,8 @@ export const QuestionnaireWizard: React.FC<QuestionnaireWizardProps> = ({ onComp
                     min={12}
                     max={100}
                     value={age}
-                    onChange={(e) => setAge(Number(e.target.value))}
+                    onChange={(e) => setAge(e.target.value)}
+                    placeholder="25"
                     className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-2 py-3 text-xs text-slate-900 dark:text-white text-center font-bold focus:outline-none focus:border-blue-600"
                   />
                 </div>
@@ -154,7 +155,8 @@ export const QuestionnaireWizard: React.FC<QuestionnaireWizardProps> = ({ onComp
                     min={100}
                     max={230}
                     value={height}
-                    onChange={(e) => setHeight(Number(e.target.value))}
+                    onChange={(e) => setHeight(e.target.value)}
+                    placeholder="175"
                     className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-2 py-3 text-xs text-slate-900 dark:text-white text-center font-bold focus:outline-none focus:border-blue-600"
                   />
                 </div>
@@ -165,7 +167,8 @@ export const QuestionnaireWizard: React.FC<QuestionnaireWizardProps> = ({ onComp
                     min={30}
                     max={250}
                     value={weight}
-                    onChange={(e) => setWeight(Number(e.target.value))}
+                    onChange={(e) => setWeight(e.target.value)}
+                    placeholder="70"
                     className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-2 py-3 text-xs text-slate-900 dark:text-white text-center font-bold focus:outline-none focus:border-blue-600"
                   />
                 </div>

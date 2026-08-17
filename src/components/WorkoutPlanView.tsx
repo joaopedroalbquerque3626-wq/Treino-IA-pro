@@ -41,8 +41,8 @@ export const WorkoutPlanView: React.FC<WorkoutPlanViewProps> = ({
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 relative z-10">
           <div>
             <div className="inline-flex items-center gap-1.5 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-blue-400 bg-blue-500/20 px-3 py-1 rounded-full border border-blue-500/30 mb-2">
-              <Sparkles className="w-3.5 h-3.5 text-blue-400" />
-              <span>PLANO ESTRUTURADO POR IA</span>
+              <Dumbbell className="w-3.5 h-3.5 text-blue-400" />
+              <span>PLANO DE TREINO ESTRUTURADO</span>
             </div>
             <h1 className="text-xl sm:text-3xl font-black text-white">
               Rotina Personalizada
@@ -240,11 +240,11 @@ export const WorkoutPlanView: React.FC<WorkoutPlanViewProps> = ({
         </div>
       )}
 
-      {/* CUSTOM PLAN TWEAK / IA REGENERATION SECTION */}
+      {/* CUSTOM PLAN TWEAK / REGENERATION SECTION */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 sm:p-6 space-y-3 shadow-xs transition-colors">
         <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-          <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">Ajustar Plano com IA</h3>
+          <Dumbbell className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+          <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">Ajustar e Customizar Plano</h3>
         </div>
 
         <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -264,7 +264,7 @@ export const WorkoutPlanView: React.FC<WorkoutPlanViewProps> = ({
             disabled={loadingRegen}
             className="min-h-[44px] px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs disabled:opacity-50 transition-colors cursor-pointer shrink-0 shadow-xs active:scale-95"
           >
-            {loadingRegen ? 'Atualizando...' : 'Atualizar com IA'}
+            {loadingRegen ? 'Atualizando...' : 'Atualizar Plano'}
           </button>
         </form>
       </div>

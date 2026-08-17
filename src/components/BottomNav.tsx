@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, Dumbbell, Calendar, TrendingUp, Bot, User } from 'lucide-react';
+import { LayoutDashboard, Dumbbell, Calendar, TrendingUp, User } from 'lucide-react';
 
 interface BottomNavProps {
   activeTab: string;
@@ -12,7 +12,6 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onNavigate }) =
     { id: 'workouts', label: 'Treinos', icon: Dumbbell },
     { id: 'calendar', label: 'Agenda', icon: Calendar },
     { id: 'evolution', label: 'Evolução', icon: TrendingUp },
-    { id: 'chat', label: 'IA Coach', icon: Bot },
     { id: 'profile', label: 'Perfil', icon: User },
   ];
 

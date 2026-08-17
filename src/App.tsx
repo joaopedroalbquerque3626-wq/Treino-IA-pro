@@ -23,7 +23,6 @@ import { EvolutionView } from './components/EvolutionView';
 import { CalendarView } from './components/CalendarView';
 import { HistoryView } from './components/HistoryView';
 import { ProfileView } from './components/ProfileView';
-import { AICoachChat } from './components/AICoachChat';
 import { NotificationsModal } from './components/NotificationsModal';
 import {
   fetchAIPlanGeneration,
@@ -443,11 +442,6 @@ export default function App() {
         {/* HISTORY PAGE */}
         {activeTab === 'history' && (
           <HistoryView history={history} />
-        )}
-
-        {/* AI COACH CHAT */}
-        {activeTab === 'chat' && profile && (
-          <AICoachChat profile={profile} currentPlan={workoutPlan} />
         )}
 
         {/* PROFILE SETTINGS */}

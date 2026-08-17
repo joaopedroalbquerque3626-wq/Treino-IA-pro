@@ -106,6 +106,20 @@ export interface CompletedSession {
   notes: string;
 }
 
+export interface BodyMeasurementLog {
+  id: string;
+  date: string; // "YYYY-MM-DD"
+  weightKg: number;
+  bodyFatPercent?: number;
+  definitionLevel?: 'Inicial' | 'Leve' | 'Moderada' | 'Alta Definição' | 'Muito Rasgado';
+  chestCm?: number;
+  armsCm?: number;
+  waistCm?: number;
+  thighsCm?: number;
+  hipsCm?: number;
+  notes?: string;
+}
+
 export interface EvolutionLog {
   id: string;
   date: string; // "YYYY-MM-DD"
@@ -113,10 +127,14 @@ export interface EvolutionLog {
   benchPressKg?: number;
   squatKg?: number;
   deadliftKg?: number;
+  overheadPressKg?: number;
   chestCm?: number;
   armsCm?: number;
   waistCm?: number;
   thighsCm?: number;
+  hipsCm?: number;
+  bodyFatPercent?: number;
+  definitionLevel?: string;
   notes?: string;
   photoUrl?: string;
 }

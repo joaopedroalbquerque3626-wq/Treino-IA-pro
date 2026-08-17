@@ -156,24 +156,24 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
             </div>
 
-            {/* AI Assistant Insight Box */}
+            {/* Training Focus & Guidelines Box */}
             <div className="bg-slate-900 dark:bg-slate-900 rounded-3xl p-5 text-white border border-slate-800 flex flex-col justify-between shadow-xs">
               <div className="flex justify-between items-start">
                 <h3 className="text-[10px] sm:text-xs uppercase font-bold text-slate-400 tracking-widest flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-blue-400" />
-                  <span>Assistente IA</span>
+                  <Target className="w-3.5 h-3.5 text-blue-400" />
+                  <span>Diretriz do Plano</span>
                 </h3>
-                <span className="flex h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                <span className="flex h-2 w-2 rounded-full bg-blue-500" />
               </div>
               <p className="text-xs italic text-slate-300 my-3 leading-relaxed">
-                "{workoutPlan?.aiAnalysisNotes || `Plano configurado para ${profile.objective} com foco em progressão constante de carga.`}"
+                "{workoutPlan?.aiAnalysisNotes || `Plano estruturado para ${profile.objective} com foco em consistência e progressão de cargas.`}"
               </p>
               <button
-                onClick={() => onNavigate('chat')}
+                onClick={() => onNavigate('workouts')}
                 className="w-full py-2.5 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-semibold border border-slate-700 text-blue-400 flex items-center justify-center gap-2 transition-colors cursor-pointer active:scale-95"
               >
-                <MessageSquare className="w-3.5 h-3.5" />
-                <span>CONVERSAR COM IA</span>
+                <Dumbbell className="w-3.5 h-3.5" />
+                <span>VER PLANO COMPLETO</span>
               </button>
             </div>
           </div>

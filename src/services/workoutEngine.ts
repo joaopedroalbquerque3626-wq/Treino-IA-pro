@@ -6,6 +6,7 @@ import {
   ExerciseAlternative,
   ProgressionSuggestion,
   CompletedSession,
+  EvolutionLog,
 } from '../types';
 
 // Default exercise library by muscle group and equipment
@@ -106,16 +107,32 @@ function getExercisesForMuscle(muscle: string, userEquipment: string[], count: n
 }
 
 export function generateLocalFallbackPlan(profile: UserProfile): WorkoutPlan {
-  const { objective, experience, location, equipment, daysPerWeek, sessionTimeMin, avoidExercises } = profile;
+  const { objective, experience, location, equipment, daysPerWeek, sessionTimeMin, avoidExercises, preferredExercises } = profile;
   const avoidList = avoidExercises ? avoidExercises.split(',').map((s) => s.trim()) : [];
+  const preferredList = preferredExercises ? preferredExercises.split(',').map((s) => s.trim()) : [];
 
-  const sets = experience === 'Avançado' ? 4 : 3;
-  const reps = objective === 'Ganho de força' ? '4–6' : objective === 'Ganho de massa muscular' ? '8–12' : '12–15';
-  const rest = objective === 'Ganho de força' ? 120 : 60;
+  // Tailor sets and reps based on experience and objective
+  const sets = experience === 'Avançado' ? 4 : experience === 'Intermediário' ? 3 : 3;
+  let reps = '10–12';
+  let rest = 60;
+
+  if (objective === 'Ganho de força') {
+    reps = experience === 'Avançado' ? '3–5' : '4–6';
+    rest = 120;
+  } else if (objective === 'Ganho de massa muscular') {
+    reps = experience === 'Iniciante' ? '10–12' : '8–12';
+    rest = 75;
+  } else if (objective === 'Perda de gordura') {
+    reps = '12–15';
+    rest = 45;
+  } else if (objective === 'Condicionamento físico') {
+    reps = '15–20';
+    rest = 30;
+  }
 
   const days: WorkoutDay[] = [];
 
-  // Generate structure based on daysPerWeek
+  // Heuristic split tailored to daysPerWeek and location
   if (daysPerWeek <= 2) {
     // 2 Days Full Body
     days.push({
@@ -123,9 +140,9 @@ export function generateLocalFallbackPlan(profile: UserProfile): WorkoutPlan {
       dayNumber: 1,
       title: 'DIA 1 — CORPO INTEIRO (A)',
       isRestDay: false,
-      targetGoal: 'Estímulo global de hipertrofia e condicionamento',
+      targetGoal: `Estímulo de ${objective.toLowerCase()} com exercícios compostos`,
       estimatedDuration: `${Math.min(sessionTimeMin, 50)} min`,
-      warmup: '5 min de mobilidade articular e aquecimento leve',
+      warmup: '5 min de mobilidade articular e aquecimento dinâmico',
       exercises: [
         ...getExercisesForMuscle('Pernas', equipment, 2, avoidList),
         ...getExercisesForMuscle('Peito', equipment, 1, avoidList),
@@ -141,7 +158,7 @@ export function generateLocalFallbackPlan(profile: UserProfile): WorkoutPlan {
       isRestDay: true,
       targetGoal: 'Recuperação muscular e regeneração',
       estimatedDuration: '0 min',
-      warmup: 'Caminhada leve ou alongamento',
+      warmup: 'Caminhada leve ou alongamento livre',
       exercises: [],
     });
     days.push({
@@ -149,9 +166,9 @@ export function generateLocalFallbackPlan(profile: UserProfile): WorkoutPlan {
       dayNumber: 3,
       title: 'DIA 3 — CORPO INTEIRO (B)',
       isRestDay: false,
-      targetGoal: 'Estímulo secundário para força e tônus',
+      targetGoal: `Estímulo secundário para ${objective.toLowerCase()}`,
       estimatedDuration: `${Math.min(sessionTimeMin, 50)} min`,
-      warmup: '5 min de mobilidade articular e elevação de batimentos',
+      warmup: '5 min de mobilidade e ativação neuromuscular',
       exercises: [
         ...getExercisesForMuscle('Pernas', equipment, 2, avoidList),
         ...getExercisesForMuscle('Costas', equipment, 1, avoidList),
@@ -161,15 +178,15 @@ export function generateLocalFallbackPlan(profile: UserProfile): WorkoutPlan {
       ],
     });
   } else if (daysPerWeek === 3) {
-    // 3 Days ABC Split (Push / Pull / Legs or Fullbody)
+    // 3 Days: Push / Pull / Legs
     days.push({
       id: 'day_1',
       dayNumber: 1,
       title: 'DIA 1 — EMPURRAR (PEITO, OMBROS E TRÍCEPS)',
       isRestDay: false,
-      targetGoal: 'Trabalho focado nos músculos empurradores superiores',
+      targetGoal: 'Foco em músculos empurradores com progressão de tensão',
       estimatedDuration: `${Math.min(sessionTimeMin, 50)} min`,
-      warmup: '5 min de mobilidade de ombros e rotação de manguito',
+      warmup: '5 min de rotação de ombros e flexões leves',
       exercises: [
         ...getExercisesForMuscle('Peito', equipment, 2, avoidList),
         ...getExercisesForMuscle('Ombros', equipment, 2, avoidList),
@@ -181,9 +198,9 @@ export function generateLocalFallbackPlan(profile: UserProfile): WorkoutPlan {
       dayNumber: 2,
       title: 'DIA 2 — PUXAR (COSTAS, BÍCEPS E CORE)',
       isRestDay: false,
-      targetGoal: 'Fortalecimento da cadeia posterior e braços',
+      targetGoal: 'Fortalecimento da cadeia posterior e pegada',
       estimatedDuration: `${Math.min(sessionTimeMin, 50)} min`,
-      warmup: '5 min de remadas leves e mobilidade torácica',
+      warmup: '5 min de mobilidade torácica e puxadas leves',
       exercises: [
         ...getExercisesForMuscle('Costas', equipment, 3, avoidList),
         ...getExercisesForMuscle('Bíceps', equipment, 2, avoidList),
@@ -195,34 +212,34 @@ export function generateLocalFallbackPlan(profile: UserProfile): WorkoutPlan {
       dayNumber: 3,
       title: 'DIA 3 — DESCANSO',
       isRestDay: true,
-      targetGoal: 'Recuperação muscular',
+      targetGoal: 'Recuperação metabólica e muscular',
       estimatedDuration: '0 min',
-      warmup: 'Alongamento',
+      warmup: '',
       exercises: [],
     });
     days.push({
       id: 'day_4',
       dayNumber: 4,
-      title: 'DIA 4 — PERNAS E ABS',
+      title: 'DIA 4 — PERNAS E ABDÔMEN',
       isRestDay: false,
-      targetGoal: 'Desenvolvimento dos membros inferiores e centro',
+      targetGoal: 'Desenvolvimento equilibrado de membros inferiores',
       estimatedDuration: `${Math.min(sessionTimeMin, 55)} min`,
-      warmup: '5 min de mobilidade de quadril e tornozelos',
+      warmup: '5 min de agachamentos com peso corporal e tornozelos',
       exercises: [
         ...getExercisesForMuscle('Pernas', equipment, 4, avoidList),
         ...getExercisesForMuscle('Core', equipment, 2, avoidList),
       ],
     });
   } else if (daysPerWeek === 4) {
-    // 4 Days Upper / Lower
+    // 4 Days: Upper / Lower Split
     days.push({
       id: 'day_1',
       dayNumber: 1,
       title: 'DIA 1 — SUPERIOR A (PEITO + COSTAS + OMBROS)',
       isRestDay: false,
-      targetGoal: 'Força e volume no tronco superior',
+      targetGoal: 'Construção de densidade e força no tronco',
       estimatedDuration: `${Math.min(sessionTimeMin, 55)} min`,
-      warmup: '5 min manguito e polichinelos leves',
+      warmup: '5 min de aquecimento manguito rotador',
       exercises: [
         ...getExercisesForMuscle('Peito', equipment, 2, avoidList),
         ...getExercisesForMuscle('Costas', equipment, 2, avoidList),
@@ -234,9 +251,9 @@ export function generateLocalFallbackPlan(profile: UserProfile): WorkoutPlan {
       dayNumber: 2,
       title: 'DIA 2 — INFERIOR A (QUADRÍCEPS + GLÚTEOS + PANTURRILHA)',
       isRestDay: false,
-      targetGoal: 'Desenvolvimento de membros inferiores foco anterior',
+      targetGoal: 'Foco nos extensores do joelho e estabilidade pélvica',
       estimatedDuration: `${Math.min(sessionTimeMin, 55)} min`,
-      warmup: 'Agachamentos com peso corporal e mobilidade de quadril',
+      warmup: 'Agachamentos livres e mobilidade de quadril',
       exercises: [
         ...getExercisesForMuscle('Pernas', equipment, 3, avoidList),
         ...getExercisesForMuscle('Core', equipment, 1, avoidList),
@@ -247,7 +264,7 @@ export function generateLocalFallbackPlan(profile: UserProfile): WorkoutPlan {
       dayNumber: 3,
       title: 'DIA 3 — DESCANSO',
       isRestDay: true,
-      targetGoal: 'Recuperação central',
+      targetGoal: 'Regeneração muscular',
       estimatedDuration: '0 min',
       warmup: '',
       exercises: [],
@@ -257,9 +274,9 @@ export function generateLocalFallbackPlan(profile: UserProfile): WorkoutPlan {
       dayNumber: 4,
       title: 'DIA 4 — SUPERIOR B (BRAÇOS + OMBROS + CORE)',
       isRestDay: false,
-      targetGoal: 'Isolamento de braços e escupra muscular de ombros',
+      targetGoal: 'Isolamento de bíceps, tríceps e deltoides',
       estimatedDuration: `${Math.min(sessionTimeMin, 50)} min`,
-      warmup: 'Mobilidade articular de cotovelos e punhos',
+      warmup: 'Mobilidade de punhos e cotovelos',
       exercises: [
         ...getExercisesForMuscle('Ombros', equipment, 2, avoidList),
         ...getExercisesForMuscle('Bíceps', equipment, 2, avoidList),
@@ -270,26 +287,26 @@ export function generateLocalFallbackPlan(profile: UserProfile): WorkoutPlan {
     days.push({
       id: 'day_5',
       dayNumber: 5,
-      title: 'DIA 5 — INFERIOR B (POSTERIORES + GLÚTEOS + ABDÔMEN)',
+      title: 'DIA 5 — INFERIOR B (POSTERIORES + GLÚTEOS + ABS)',
       isRestDay: false,
-      targetGoal: 'Fortalecimento de posteriores e glúteos',
+      targetGoal: 'Cadeia posterior e força funcional do core',
       estimatedDuration: `${Math.min(sessionTimeMin, 50)} min`,
-      warmup: 'Elevação pélvica sem carga e mobilidade de tornozelos',
+      warmup: 'Elevações pélvicas e alongamento dinâmico de isquiotibiais',
       exercises: [
         ...getExercisesForMuscle('Pernas', equipment, 3, avoidList),
         ...getExercisesForMuscle('Core', equipment, 2, avoidList),
       ],
     });
-  } else {
-    // 5-6 Days ABCDE Split
+  } else if (daysPerWeek === 5) {
+    // 5 Days: ABCDE Split
     days.push({
       id: 'day_1',
       dayNumber: 1,
-      title: 'DIA 1 — PEITO E ABS',
+      title: 'DIA 1 — PEITORAL & ABDÔMEN',
       isRestDay: false,
       targetGoal: 'Hipertrofia e densidade peitoral',
       estimatedDuration: `${Math.min(sessionTimeMin, 50)} min`,
-      warmup: 'Flexões de braço e mobilidade de ombro',
+      warmup: 'Mobilidade de ombros e flexões controladas',
       exercises: [
         ...getExercisesForMuscle('Peito', equipment, 3, avoidList),
         ...getExercisesForMuscle('Core', equipment, 2, avoidList),
@@ -298,11 +315,11 @@ export function generateLocalFallbackPlan(profile: UserProfile): WorkoutPlan {
     days.push({
       id: 'day_2',
       dayNumber: 2,
-      title: 'DIA 2 — COSTAS E LOMBAR',
+      title: 'DIA 2 — DORSAL & LOMBAR',
       isRestDay: false,
-      targetGoal: 'Largura e espessura de dorsais',
+      targetGoal: 'Largura e espessura das costas',
       estimatedDuration: `${Math.min(sessionTimeMin, 50)} min`,
-      warmup: 'Mobilidade torácica e puxadas leves',
+      warmup: 'Puxadas leves e mobilidade escapular',
       exercises: [
         ...getExercisesForMuscle('Costas', equipment, 4, avoidList),
       ],
@@ -312,9 +329,9 @@ export function generateLocalFallbackPlan(profile: UserProfile): WorkoutPlan {
       dayNumber: 3,
       title: 'DIA 3 — PERNAS COMPLETO',
       isRestDay: false,
-      targetGoal: 'Força e volume de membros inferiores',
+      targetGoal: 'Força e desenvolvimento de membros inferiores',
       estimatedDuration: `${Math.min(sessionTimeMin, 60)} min`,
-      warmup: 'Agachamentos sem carga e mobilidade de quadril',
+      warmup: 'Agachamentos sem peso e mobilidade de tornozelo',
       exercises: [
         ...getExercisesForMuscle('Pernas', equipment, 4, avoidList),
       ],
@@ -322,11 +339,11 @@ export function generateLocalFallbackPlan(profile: UserProfile): WorkoutPlan {
     days.push({
       id: 'day_4',
       dayNumber: 4,
-      title: 'DIA 4 — OMBROS E TRAPÉZIO',
+      title: 'DIA 4 — DELTOIDES & TRAPÉZIO',
       isRestDay: false,
-      targetGoal: 'Densidade e formato em V nos ombros',
+      targetGoal: 'Construção tridimensional dos ombros',
       estimatedDuration: `${Math.min(sessionTimeMin, 50)} min`,
-      warmup: 'Rotação de ombros e elevações leves',
+      warmup: 'Elevações leves e manguito rotador',
       exercises: [
         ...getExercisesForMuscle('Ombros', equipment, 3, avoidList),
         ...getExercisesForMuscle('Core', equipment, 1, avoidList),
@@ -337,12 +354,95 @@ export function generateLocalFallbackPlan(profile: UserProfile): WorkoutPlan {
       dayNumber: 5,
       title: 'DIA 5 — BRAÇOS (BÍCEPS + TRÍCEPS)',
       isRestDay: false,
-      targetGoal: 'Hipertrofia focada em braços',
+      targetGoal: 'Volume e definição de braços',
       estimatedDuration: `${Math.min(sessionTimeMin, 50)} min`,
-      warmup: 'Flexões e roscas leves',
+      warmup: 'Aquecimento articular de braços',
       exercises: [
         ...getExercisesForMuscle('Bíceps', equipment, 3, avoidList),
         ...getExercisesForMuscle('Tríceps', equipment, 3, avoidList),
+      ],
+    });
+  } else {
+    // 6 Days: Push / Pull / Legs x 2
+    days.push({
+      id: 'day_1',
+      dayNumber: 1,
+      title: 'DIA 1 — EMPURRAR A (PEITO / OMBRO / TRÍCEPS)',
+      isRestDay: false,
+      targetGoal: 'Sobrecarga progressiva nos movimentos de empurrar',
+      estimatedDuration: `${Math.min(sessionTimeMin, 50)} min`,
+      warmup: 'Mobilidade de ombros',
+      exercises: [
+        ...getExercisesForMuscle('Peito', equipment, 3, avoidList),
+        ...getExercisesForMuscle('Ombros', equipment, 2, avoidList),
+        ...getExercisesForMuscle('Tríceps', equipment, 1, avoidList),
+      ],
+    });
+    days.push({
+      id: 'day_2',
+      dayNumber: 2,
+      title: 'DIA 2 — PUXAR A (COSTAS / BÍCEPS / CORE)',
+      isRestDay: false,
+      targetGoal: 'Dorsais e espessura com pegada variada',
+      estimatedDuration: `${Math.min(sessionTimeMin, 50)} min`,
+      warmup: 'Mobilidade torácica',
+      exercises: [
+        ...getExercisesForMuscle('Costas', equipment, 3, avoidList),
+        ...getExercisesForMuscle('Bíceps', equipment, 2, avoidList),
+        ...getExercisesForMuscle('Core', equipment, 1, avoidList),
+      ],
+    });
+    days.push({
+      id: 'day_3',
+      dayNumber: 3,
+      title: 'DIA 3 — PERNAS A (QUADRÍCEPS & GLÚTEOS)',
+      isRestDay: false,
+      targetGoal: 'Volume nos membros inferiores com foco anterior',
+      estimatedDuration: `${Math.min(sessionTimeMin, 55)} min`,
+      warmup: 'Agachamentos com peso corporal',
+      exercises: [
+        ...getExercisesForMuscle('Pernas', equipment, 4, avoidList),
+      ],
+    });
+    days.push({
+      id: 'day_4',
+      dayNumber: 4,
+      title: 'DIA 4 — EMPURRAR B (FOCO OMBROS & PEITORAL)',
+      isRestDay: false,
+      targetGoal: 'Estímulo complementar de hipertrofia superior',
+      estimatedDuration: `${Math.min(sessionTimeMin, 50)} min`,
+      warmup: 'Manguito rotador e rotações escapulares',
+      exercises: [
+        ...getExercisesForMuscle('Ombros', equipment, 3, avoidList),
+        ...getExercisesForMuscle('Peito', equipment, 2, avoidList),
+        ...getExercisesForMuscle('Tríceps', equipment, 2, avoidList),
+      ],
+    });
+    days.push({
+      id: 'day_5',
+      dayNumber: 5,
+      title: 'DIA 5 — PUXAR B (FOCO LARGURA & BRAÇOS)',
+      isRestDay: false,
+      targetGoal: 'Trabalho focado em dorsais e bíceps',
+      estimatedDuration: `${Math.min(sessionTimeMin, 50)} min`,
+      warmup: 'Puxadas dinâmicas leves',
+      exercises: [
+        ...getExercisesForMuscle('Costas', equipment, 3, avoidList),
+        ...getExercisesForMuscle('Bíceps', equipment, 3, avoidList),
+        ...getExercisesForMuscle('Core', equipment, 1, avoidList),
+      ],
+    });
+    days.push({
+      id: 'day_6',
+      dayNumber: 6,
+      title: 'DIA 6 — PERNAS B (POSTERIORES & PANTURRILHA)',
+      isRestDay: false,
+      targetGoal: 'Isquiotibiais, glúteos e abdômen',
+      estimatedDuration: `${Math.min(sessionTimeMin, 50)} min`,
+      warmup: 'Mobilidade de quadril',
+      exercises: [
+        ...getExercisesForMuscle('Pernas', equipment, 3, avoidList),
+        ...getExercisesForMuscle('Core', equipment, 2, avoidList),
       ],
     });
   }
@@ -375,6 +475,223 @@ export function generateLocalFallbackPlan(profile: UserProfile): WorkoutPlan {
 
 export function generateLocalWorkoutPlan(profile: UserProfile): WorkoutPlan {
   return generateLocalFallbackPlan(profile);
+}
+
+// -------------------------------------------------------------
+// INVISIBLE GHOST AI: EVOLUTION & PROGRESSION RE-ADJUSTMENT ENGINE
+// -------------------------------------------------------------
+
+export interface LoadAdjustmentMetrics {
+  currentBench: number;
+  targetBench: number;
+  currentSquat: number;
+  targetSquat: number;
+  currentDeadlift: number;
+  targetDeadlift: number;
+  currentOverhead: number;
+  targetOverhead: number;
+  currentWeight: number;
+  targetWeight: number;
+  summaryMessage: string;
+  chartDataWithProjections: {
+    date: string;
+    peso: number | null;
+    supino: number | null;
+    agachamento: number | null;
+    terra: number | null;
+    metaSupino?: number | null;
+    metaAgachamento?: number | null;
+    metaTerra?: number | null;
+    isProjection?: boolean;
+  }[];
+}
+
+export interface DefinitionAdjustmentMetrics {
+  currentWaist: number;
+  targetWaist: number;
+  currentArms: number;
+  targetArms: number;
+  currentChest: number;
+  targetChest: number;
+  currentThighs: number;
+  targetThighs: number;
+  currentLevel: string;
+  targetLevel: string;
+  waistToHeightRatio: number;
+  idealWaistRatio: number;
+  summaryMessage: string;
+  chartDataWithProjections: {
+    date: string;
+    cintura: number | null;
+    braco: number | null;
+    peitoral: number | null;
+    coxa: number | null;
+    metaCintura?: number | null;
+    metaBraco?: number | null;
+    isProjection?: boolean;
+  }[];
+}
+
+/**
+ * Computes ghost AI load progression calibration and chart projections
+ */
+export function calculateGhostLoadAdjustments(
+  profile: UserProfile,
+  evolutionLogs: EvolutionLog[],
+  history: CompletedSession[]
+): LoadAdjustmentMetrics {
+  const lastLog = evolutionLogs[evolutionLogs.length - 1];
+  const currentWeight = lastLog?.weightKg || profile.weight || 70;
+  const currentBench = lastLog?.benchPressKg || 60;
+  const currentSquat = lastLog?.squatKg || 80;
+  const currentDeadlift = lastLog?.deadliftKg || 90;
+  const currentOverhead = lastLog?.overheadPressKg || 40;
+
+  // Rate of progression according to objective & experience
+  let factor = 1.05; // 5% increment
+  if (profile.objective === 'Ganho de força') factor = 1.075;
+  if (profile.experience === 'Avançado') factor = 1.025; // Smaller percentage for advanced
+
+  const targetBench = Math.round(currentBench * factor * 2) / 2;
+  const targetSquat = Math.round(currentSquat * factor * 2) / 2;
+  const targetDeadlift = Math.round(currentDeadlift * factor * 2) / 2;
+  const targetOverhead = Math.round(currentOverhead * factor * 2) / 2;
+
+  let targetWeight = currentWeight;
+  if (profile.objective === 'Ganho de massa muscular') {
+    targetWeight = Math.round((currentWeight + (profile.height - 100 > currentWeight ? 3 : 1.5)) * 10) / 10;
+  } else if (profile.objective === 'Perda de gordura') {
+    targetWeight = Math.round((currentWeight - 3) * 10) / 10;
+  }
+
+  // Base chart data from actual logs
+  const baseChart = evolutionLogs.map((log, idx) => {
+    // Calculate intermediate target curve
+    const progressFraction = (idx + 1) / Math.max(evolutionLogs.length, 1);
+    const startBench = evolutionLogs[0]?.benchPressKg || currentBench;
+    const startSquat = evolutionLogs[0]?.squatKg || currentSquat;
+    const startDeadlift = evolutionLogs[0]?.deadliftKg || currentDeadlift;
+
+    return {
+      date: log.date.substring(5),
+      peso: log.weightKg || null,
+      supino: log.benchPressKg || null,
+      agachamento: log.squatKg || null,
+      terra: log.deadliftKg || null,
+      metaSupino: Math.round((startBench + (targetBench - startBench) * progressFraction) * 10) / 10,
+      metaAgachamento: Math.round((startSquat + (targetSquat - startSquat) * progressFraction) * 10) / 10,
+      metaTerra: Math.round((startDeadlift + (targetDeadlift - startDeadlift) * progressFraction) * 10) / 10,
+      isProjection: false,
+    };
+  });
+
+  // Append a next-cycle projected milestone point
+  baseChart.push({
+    date: 'Próx. Meta',
+    peso: targetWeight,
+    supino: null,
+    agachamento: null,
+    terra: null,
+    metaSupino: targetBench,
+    metaAgachamento: targetSquat,
+    metaTerra: targetDeadlift,
+    isProjection: true,
+  });
+
+  const summaryMessage = `Reajuste de cargas: Para sua meta de ${profile.objective.toLowerCase()}, sugerimos progressão para ${targetBench}kg no Supino (+${Math.round((targetBench - currentBench)*10)/10}kg) e ${targetSquat}kg no Agachamento (+${Math.round((targetSquat - currentSquat)*10)/10}kg).`;
+
+  return {
+    currentBench,
+    targetBench,
+    currentSquat,
+    targetSquat,
+    currentDeadlift,
+    targetDeadlift,
+    currentOverhead,
+    targetOverhead,
+    currentWeight,
+    targetWeight,
+    summaryMessage,
+    chartDataWithProjections: baseChart,
+  };
+}
+
+/**
+ * Computes ghost AI body definition & circumference calibration and chart projections
+ */
+export function calculateGhostDefinitionAdjustments(
+  profile: UserProfile,
+  evolutionLogs: EvolutionLog[]
+): DefinitionAdjustmentMetrics {
+  const defLogs = evolutionLogs.filter((l) => l.waistCm || l.armsCm || l.chestCm || l.definitionLevel);
+  const lastDef = defLogs[defLogs.length - 1] || evolutionLogs[evolutionLogs.length - 1];
+
+  const currentWaist = lastDef?.waistCm || 82;
+  const currentArms = lastDef?.armsCm || 36;
+  const currentChest = lastDef?.chestCm || 98;
+  const currentThighs = lastDef?.thighsCm || 56;
+  const currentLevel = lastDef?.definitionLevel || 'Moderada';
+
+  // Golden ratio & biomechanical estimates for height & weight
+  const idealWaist = Math.round(profile.height * 0.44 * 10) / 10; // Waist should be ~44-46% of height
+  const idealArms = Math.round((currentArms + (profile.objective === 'Ganho de massa muscular' ? 2.5 : 1)) * 10) / 10;
+  const idealChest = Math.round((currentChest + (profile.objective === 'Ganho de massa muscular' ? 4 : 2)) * 10) / 10;
+  const idealThighs = Math.round((currentThighs + 2) * 10) / 10;
+
+  let targetLevel = 'Alta Definição';
+  if (currentLevel === 'Alta Definição') targetLevel = 'Muito Rasgado';
+  if (profile.objective === 'Ganho de massa muscular') targetLevel = 'Massa Densa & Definida';
+
+  const waistToHeightRatio = Math.round((currentWaist / profile.height) * 100) / 100;
+  const idealWaistRatio = 0.45;
+
+  const baseChart = (defLogs.length > 0 ? defLogs : evolutionLogs).map((log, idx) => {
+    const progressFraction = (idx + 1) / Math.max(defLogs.length, 1);
+    const startWaist = defLogs[0]?.waistCm || currentWaist;
+    const startArms = defLogs[0]?.armsCm || currentArms;
+
+    return {
+      date: log.date.substring(5),
+      cintura: log.waistCm || null,
+      braco: log.armsCm || null,
+      peitoral: log.chestCm || null,
+      coxa: log.thighsCm || null,
+      metaCintura: Math.round((startWaist + (idealWaist - startWaist) * progressFraction) * 10) / 10,
+      metaBraco: Math.round((startArms + (idealArms - startArms) * progressFraction) * 10) / 10,
+      isProjection: false,
+    };
+  });
+
+  // Append a next-cycle projected milestone point
+  baseChart.push({
+    date: 'Próx. Meta',
+    cintura: null,
+    braco: null,
+    peitoral: null,
+    coxa: null,
+    metaCintura: idealWaist,
+    metaBraco: idealArms,
+    isProjection: true,
+  });
+
+  const summaryMessage = `Reajuste de medidas: Meta de cintura afunilada para ${idealWaist}cm (proporção áurea para sua altura de ${profile.height}cm) e expansão de braço para ${idealArms}cm.`;
+
+  return {
+    currentWaist,
+    targetWaist: idealWaist,
+    currentArms,
+    targetArms: idealArms,
+    currentChest,
+    targetChest: idealChest,
+    currentThighs,
+    targetThighs: idealThighs,
+    currentLevel,
+    targetLevel,
+    waistToHeightRatio,
+    idealWaistRatio,
+    summaryMessage,
+    chartDataWithProjections: baseChart,
+  };
 }
 
 export async function fetchAIPlanTweak(
