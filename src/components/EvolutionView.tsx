@@ -82,7 +82,7 @@ export const EvolutionView: React.FC<EvolutionViewProps> = ({
             <span>Peso Atual</span>
           </div>
           <p className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white mt-1.5">
-            {evolutionLogs[evolutionLogs.length - 1]?.weight || profile.weight} kg
+            {evolutionLogs[evolutionLogs.length - 1]?.weightKg || profile.weight} kg
           </p>
           <p className="text-[10px] text-slate-400 mt-0.5">Meta: {profile.objective}</p>
         </div>

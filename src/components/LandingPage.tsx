@@ -11,7 +11,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartQuestionnaire, 
   const [expandSafety, setExpandSafety] = useState(false);
 
   return (
-    <div className="min-h-[calc(100vh-60px)] bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col justify-between overflow-x-hidden transition-colors">
+    <div className="min-h-[calc(100vh-60px)] bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col justify-between pb-12 transition-colors">
       <main className="max-w-4xl mx-auto px-4 py-6 sm:py-12 flex-1 flex flex-col items-center text-center relative z-10 w-full">
         
         {/* TOP SAFETY & HEALTH GUIDELINES BANNER (Right at the beginning when accessing) */}

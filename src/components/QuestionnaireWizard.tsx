@@ -90,7 +90,7 @@ export const QuestionnaireWizard: React.FC<QuestionnaireWizardProps> = ({ onComp
   };
 
   return (
-    <div className="min-h-[calc(100vh-65px)] bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col justify-between py-6 px-3 sm:px-6 transition-colors">
+    <div className="min-h-[calc(100vh-65px)] bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col justify-between py-6 px-3 sm:px-6 pb-24 transition-colors">
       <div className="max-w-xl mx-auto w-full">
         {/* Header Progress Bar */}
         <div className="mb-6">
