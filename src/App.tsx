@@ -123,7 +123,7 @@ export default function App() {
       {activeTab === 'evolution' && profile && <EvolutionView profile={profile} evolutionLogs={evolutionLogs} history={history} onAddEvolutionLog={handleAddEvolution} />}
       {activeTab === 'calendar' && <CalendarView history={history} />}
       {activeTab === 'history' && <HistoryView history={history} />}
-      {activeTab === 'profile' && profile && <ProfileView profile={profile} onUpdateProfile={setProfile} onRegeneratePlan={handleRegeneratePlan} />}
+      {activeTab === 'profile' && profile && <ProfileView profile={profile} onUpdateProfile={setProfile} onRegeneratePlan={handleRegeneratePlan} onOpenSafety={() => setSafetyModalOpen(true)} loadingRegen={loadingPlan} themeMode={themeMode} onSelectTheme={setThemeMode} />}
     </main>
     {profile && <BottomNav activeTab={activeTab} onNavigate={setActiveTab} />}
     <SafetyDisclaimerModal isOpen={safetyModalOpen} onClose={() => setSafetyModalOpen(false)} />
