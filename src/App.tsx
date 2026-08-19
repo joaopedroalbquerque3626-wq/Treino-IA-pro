@@ -15,7 +15,8 @@ import { CalendarView } from './components/CalendarView';
 import { HistoryView } from './components/HistoryView';
 import { ProfileView } from './components/ProfileView';
 import { NotificationsModal } from './components/NotificationsModal';
-import { fetchAIPlanGeneration, generateLocalWorkoutPlan, fetchAIPlanTweak } from './services/workoutEngine';
+import { generateLocalWorkoutPlan } from './services/workoutEngine';
+import { fetchAIPlanGeneration, fetchAIPlanTweak } from './services/aiApi';
 import { sanitizeWorkoutPlan, sessionAlreadyRecorded, validEvolutionLog, progressionFromHistory } from './utils/dataGuards';
 
 export default function App() {
@@ -51,7 +52,7 @@ export default function App() {
   useEffect(() => { localStorage.setItem('treino_ia_pro_history', JSON.stringify(history)); }, [history]);
   useEffect(() => { localStorage.setItem('treino_ia_pro_evolution', JSON.stringify(evolutionLogs)); }, [evolutionLogs]);
   useEffect(() => {
-    if (profile?.weight && evolutionLogs.length === 0) setEvolutionLogs([{ id: `evo_init_${Date.now()}`, date: new Date().toISOString().split('T')[0], weightKg: profile.weight, notes: 'Medida inicial informada no perfil' }]);
+    if (profile?.weight && evolutionLogs.length === 0) setEvolutionLogs([{ id: `evo_init_${Date.now()}`, date: new Date().toLocaleDateString('en-CA'), weightKg: profile.weight, notes: 'Medida inicial informada no perfil' }]);
   }, [profile, evolutionLogs.length]);
 
   const handleToggleTheme = () => setThemeMode((prev) => prev === 'light' ? 'dark' : prev === 'dark' ? 'light' : (document.documentElement.classList.contains('dark') ? 'light' : 'dark'));
@@ -86,12 +87,12 @@ export default function App() {
     finally { setLoadingPlan(false); }
   };
   const handleCustomPlanTweak = async (promptText: string) => {
-    if (!profile || !workoutPlan) return; setLoadingPlan(true);
-    try { setWorkoutPlan(createSafePlan(await fetchAIPlanTweak(workoutPlan, promptText, profile), profile)); }
+    if (!profile || !workoutPlan || !promptText.trim()) return; setLoadingPlan(true);
+    try { setWorkoutPlan(createSafePlan(await fetchAIPlanTweak(workoutPlan, promptText.trim(), profile), profile)); }
     catch (err) { console.error('Plan tweak failed:', err); }
     finally { setLoadingPlan(false); }
   };
-  const handleStartWorkout = (dayId: string) => { const day = workoutPlan?.days.find(d => d.id === dayId); if (day && !day.isRestDay) { setActiveWorkoutDay(day); setActiveTab('active-workout'); } };
+  const handleStartWorkout = (dayId: string) => { const day = workoutPlan?.days.find(d => d.id === dayId); if (day && !day.isRestDay && day.exercises.length) { setActiveWorkoutDay(day); setActiveTab('active-workout'); } };
   const handleFinishWorkout = (session: CompletedSession) => {
     setHistory(prev => sessionAlreadyRecorded(prev, session) ? prev : [...prev, session]);
     setActiveWorkoutDay(null); setActiveTab('dashboard');
