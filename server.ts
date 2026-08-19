@@ -6,70 +6,124 @@ import { createServer as createViteServer } from 'vite';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const PORT = Number(process.env.PORT || 3000);
+const MAX_BODY_SIZE = '256kb';
+const MAX_MESSAGE_LENGTH = 4000;
+const MAX_PROFILE_FIELD_LENGTH = 500;
+const WINDOW_MS = 60_000;
+const MAX_REQUESTS_PER_WINDOW = 30;
+
+type RateEntry = { count: number; resetAt: number };
+const rateStore = new Map<string, RateEntry>();
+
+const text = (value: unknown, max = MAX_PROFILE_FIELD_LENGTH) =>
+  typeof value === 'string' ? value.trim().slice(0, max) : '';
+
+const numberInRange = (value: unknown, min: number, max: number) =>
+  typeof value === 'number' && Number.isFinite(value) && value >= min && value <= max;
+
+function validateProfile(profile: any) {
+  if (!profile || typeof profile !== 'object') return 'Perfil de usuário é obrigatório.';
+  if (!numberInRange(profile.age, 10, 100)) return 'Idade inválida.';
+  if (!numberInRange(profile.height, 80, 250)) return 'Altura inválida.';
+  if (!numberInRange(profile.weight, 25, 350)) return 'Peso inválido.';
+  if (!Number.isInteger(profile.daysPerWeek) || profile.daysPerWeek < 1 || profile.daysPerWeek > 7) return 'Dias por semana inválidos.';
+  if (!numberInRange(profile.sessionTimeMin, 15, 240)) return 'Tempo de sessão inválido.';
+  if (!Array.isArray(profile.equipment) || profile.equipment.length > 30) return 'Equipamentos inválidos.';
+  return null;
+}
+
+function equipmentAllowed(requiredEquipment: string, available: string[]) {
+  const required = requiredEquipment.toLowerCase().trim();
+  if (!required || required.includes('peso corporal') || required.includes('corpo')) return true;
+  const normalized = available.map((item) => item.toLowerCase());
+  return normalized.some((item) => required.includes(item) || item.includes(required));
+}
+
+function validateWorkoutPlan(plan: any, profile: any) {
+  if (!plan || typeof plan !== 'object' || !Array.isArray(plan.days)) return 'A IA retornou um plano inválido.';
+  if (plan.days.length !== profile.daysPerWeek) return `O plano deve conter exatamente ${profile.daysPerWeek} dias.`;
+  for (const day of plan.days) {
+    if (!day || typeof day !== 'object' || !Array.isArray(day.exercises)) return 'Um dos dias do plano está inválido.';
+    if (day.exercises.length > 30) return 'Plano excedeu o limite de exercícios.';
+    for (const exercise of day.exercises) {
+      if (!exercise?.name || !exercise?.equipment) return 'Existe exercício sem dados obrigatórios.';
+      if (!equipmentAllowed(String(exercise.equipment), profile.equipment)) {
+        return `Exercício incompatível com os equipamentos disponíveis: ${exercise.name}.`;
+      }
+      if (!Number.isInteger(exercise.sets) || exercise.sets < 1 || exercise.sets > 10) return `Séries inválidas em ${exercise.name}.`;
+      if (!Number.isInteger(exercise.restSeconds) || exercise.restSeconds < 0 || exercise.restSeconds > 600) return `Descanso inválido em ${exercise.name}.`;
+    }
+  }
+  return null;
+}
+
+function rateLimit(req: express.Request, res: express.Response, next: express.NextFunction) {
+  const key = req.ip || 'unknown';
+  const now = Date.now();
+  const current = rateStore.get(key);
+  if (!current || current.resetAt <= now) {
+    rateStore.set(key, { count: 1, resetAt: now + WINDOW_MS });
+    return next();
+  }
+  if (current.count >= MAX_REQUESTS_PER_WINDOW) {
+    return res.status(429).json({ error: 'Muitas solicitações. Tente novamente em alguns segundos.' });
+  }
+  current.count += 1;
+  return next();
+}
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  app.disable('x-powered-by');
+  app.use(express.json({ limit: MAX_BODY_SIZE }));
+  app.use('/api', rateLimit);
 
-  app.use(express.json());
-
-  // Initialize Gemini AI Client lazily/safely
   const getGenAI = () => {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) return null;
-    return new GoogleGenAI({
-      apiKey,
-      httpOptions: {
-        headers: {
-          'User-Agent': 'aistudio-build',
-        },
-      },
-    });
+    return new GoogleGenAI({ apiKey, httpOptions: { headers: { 'User-Agent': 'aistudio-build' } } });
   };
 
-  // Health check route
-  app.get('/api/health', (req, res) => {
+  app.get('/api/health', (_req, res) => {
     res.json({ status: 'ok', app: 'TREINO IA PRO' });
   });
 
-  // 1. Generate Plan API Endpoint
   app.post('/api/generate-plan', async (req, res) => {
     try {
-      const { profile } = req.body;
-      if (!profile) {
-        return res.status(400).json({ error: 'Perfil de usuário é obrigatório' });
-      }
+      const { profile } = req.body || {};
+      const validationError = validateProfile(profile);
+      if (validationError) return res.status(400).json({ error: validationError });
 
       const ai = getGenAI();
-      if (!ai) {
-        console.log('GEMINI_API_KEY not configured, returning empty for client fallback');
-        return res.status(503).json({ error: 'Gemini API não configurada' });
-      }
+      if (!ai) return res.status(503).json({ error: 'Gemini API não configurada' });
 
       const prompt = `Você é o personal trainer e especialista em ciência do esporte do aplicativo TREINO IA PRO.
-Crie um plano de treino altamente personalizado e realista em formato JSON para o seguinte perfil de usuário:
+Crie um plano de treino altamente personalizado e realista em JSON.
 
-Nome: ${profile.name}
+PERFIL:
+Nome: ${text(profile.name, 100)}
 Idade: ${profile.age} anos
 Altura: ${profile.height} cm
 Peso: ${profile.weight} kg
-Objetivo: ${profile.objective}
-Nível de experiência: ${profile.experience}
-Local de treino: ${profile.location}
-Equipamentos disponíveis: ${profile.equipment?.join(', ') || 'Apenas peso corporal'}
-Dias disponíveis por semana: ${profile.daysPerWeek} dias
+Objetivo: ${text(profile.objective, 100)}
+Experiência: ${text(profile.experience, 100)}
+Local: ${text(profile.location, 100)}
+Equipamentos: ${profile.equipment.join(', ') || 'Apenas peso corporal'}
+Dias por semana: ${profile.daysPerWeek}
 Tempo por sessão: ${profile.sessionTimeMin} minutos
-Exercícios preferidos: ${profile.preferredExercises || 'Nenhum'}
-Exercícios a evitar: ${profile.avoidExercises || 'Nenhum'}
-Observações / Restrições: ${profile.observations || 'Nenhuma'}
+Preferências: ${text(profile.preferredExercises)}
+Evitar: ${text(profile.avoidExercises)}
+Observações: ${text(profile.observations)}
 
-REGRAS RÍGIDAS DE SEGURANÇA E QUALIDADE:
-1. NUNCA prescreva anabolizantes, hormônios, medicamentos ou substâncias perigosas.
-2. NUNCA crie exercícios que exijam equipamentos que o usuário NÃO possui.
-3. Se o usuário relatou dor, lesão ou cirurgia recente, adote postura preventiva e inclua avisos de segurança.
-4. A divisão semanal deve corresponder exatamente à quantidade de dias por semana (${profile.daysPerWeek} dias).
-5. Defina aquecimento (warmup) rápido e funcional para cada sessão.
-6. Ajuste o número de séries, repetições e descansos adequadamente para o nível (${profile.experience}) e objetivo (${profile.objective}).`;
+REGRAS RÍGIDAS:
+1. Nunca prescreva anabolizantes, hormônios, medicamentos ou substâncias perigosas.
+2. Use SOMENTE equipamentos presentes na lista do usuário ou peso corporal.
+3. Se houver dor, lesão ou cirurgia, seja conservador e recomende avaliação profissional quando apropriado.
+4. Retorne EXATAMENTE ${profile.daysPerWeek} dias.
+5. Cada sessão deve respeitar aproximadamente ${profile.sessionTimeMin} minutos.
+6. Ajuste séries, repetições e descanso ao objetivo e experiência.
+7. Não invente informações clínicas que não foram fornecidas.`;
 
       const response = await ai.models.generateContent({
         model: 'gemini-3.6-flash',
@@ -85,15 +139,9 @@ REGRAS RÍGIDAS DE SEGURANÇA E QUALIDADE:
               summary: {
                 type: Type.OBJECT,
                 properties: {
-                  objective: { type: Type.STRING },
-                  experience: { type: Type.STRING },
-                  daysPerWeek: { type: Type.INTEGER },
-                  sessionTimeMin: { type: Type.INTEGER },
-                  location: { type: Type.STRING },
-                  equipment: {
-                    type: Type.ARRAY,
-                    items: { type: Type.STRING },
-                  },
+                  objective: { type: Type.STRING }, experience: { type: Type.STRING }, daysPerWeek: { type: Type.INTEGER },
+                  sessionTimeMin: { type: Type.INTEGER }, location: { type: Type.STRING },
+                  equipment: { type: Type.ARRAY, items: { type: Type.STRING } },
                 },
                 required: ['objective', 'experience', 'daysPerWeek', 'sessionTimeMin', 'location'],
               },
@@ -102,26 +150,15 @@ REGRAS RÍGIDAS DE SEGURANÇA E QUALIDADE:
                 items: {
                   type: Type.OBJECT,
                   properties: {
-                    id: { type: Type.STRING },
-                    dayNumber: { type: Type.INTEGER },
-                    title: { type: Type.STRING },
-                    isRestDay: { type: Type.BOOLEAN },
-                    targetGoal: { type: Type.STRING },
-                    estimatedDuration: { type: Type.STRING },
-                    warmup: { type: Type.STRING },
+                    id: { type: Type.STRING }, dayNumber: { type: Type.INTEGER }, title: { type: Type.STRING }, isRestDay: { type: Type.BOOLEAN },
+                    targetGoal: { type: Type.STRING }, estimatedDuration: { type: Type.STRING }, warmup: { type: Type.STRING },
                     exercises: {
                       type: Type.ARRAY,
                       items: {
                         type: Type.OBJECT,
                         properties: {
-                          id: { type: Type.STRING },
-                          name: { type: Type.STRING },
-                          muscleGroup: { type: Type.STRING },
-                          sets: { type: Type.INTEGER },
-                          reps: { type: Type.STRING },
-                          restSeconds: { type: Type.INTEGER },
-                          executionTip: { type: Type.STRING },
-                          equipment: { type: Type.STRING },
+                          id: { type: Type.STRING }, name: { type: Type.STRING }, muscleGroup: { type: Type.STRING }, sets: { type: Type.INTEGER },
+                          reps: { type: Type.STRING }, restSeconds: { type: Type.INTEGER }, executionTip: { type: Type.STRING }, equipment: { type: Type.STRING },
                         },
                         required: ['id', 'name', 'muscleGroup', 'sets', 'reps', 'restSeconds', 'executionTip', 'equipment'],
                       },
@@ -138,132 +175,91 @@ REGRAS RÍGIDAS DE SEGURANÇA E QUALIDADE:
       });
 
       const jsonText = response.text;
-      if (!jsonText) {
-        throw new Error('Nenhuma resposta do Gemini');
-      }
-
+      if (!jsonText) throw new Error('Nenhuma resposta do Gemini');
       const workoutPlan = JSON.parse(jsonText);
+      const planError = validateWorkoutPlan(workoutPlan, profile);
+      if (planError) return res.status(422).json({ error: planError, code: 'INVALID_AI_PLAN' });
       return res.json(workoutPlan);
     } catch (error: any) {
       console.error('Erro na rota /api/generate-plan:', error);
-      res.status(500).json({ error: error.message || 'Erro ao gerar plano via IA' });
+      return res.status(500).json({ error: 'Não foi possível gerar o plano agora.' });
     }
   });
 
-  // 2. Substitute Exercise API Endpoint
   app.post('/api/substitute-exercise', async (req, res) => {
     try {
-      const { exercise, profile } = req.body;
+      const { exercise, profile } = req.body || {};
+      const profileError = validateProfile(profile);
+      if (profileError || !exercise?.name || !exercise?.muscleGroup) return res.status(400).json({ error: profileError || 'Exercício inválido.' });
       const ai = getGenAI();
-      if (!ai) {
-        return res.status(530).json({ error: 'Gemini indisponível' });
-      }
+      if (!ai) return res.status(503).json({ error: 'Gemini indisponível' });
 
-      const prompt = `Você é o assistente técnico do TREINO IA PRO. O usuário quer substituir o exercício: "${exercise.name}" (${exercise.muscleGroup}, equipamento: ${exercise.equipment}).
-
-Perfil do usuário:
-- Equipamentos disponíveis: ${profile.equipment?.join(', ') || 'Peso Corporal'}
-- Nível de experiência: ${profile.experience}
-- Local: ${profile.location}
-
-Forneça até 3 alternativas viáveis que respeitem estritamente os equipamentos que o usuário possui.
-Explique o motivo pedagógico de cada substituição.`;
-
+      const prompt = `Você é o assistente técnico do TREINO IA PRO. Substitua o exercício "${text(exercise.name, 150)}" (${text(exercise.muscleGroup, 100)}).
+Equipamentos disponíveis: ${profile.equipment.join(', ') || 'Peso corporal'}.
+Nível: ${text(profile.experience, 100)}. Local: ${text(profile.location, 100)}.
+Forneça até 3 alternativas. Cada alternativa DEVE usar somente equipamento disponível ou peso corporal.`;
       const response = await ai.models.generateContent({
-        model: 'gemini-3.6-flash',
-        contents: prompt,
+        model: 'gemini-3.6-flash', contents: prompt,
         config: {
           responseMimeType: 'application/json',
           responseSchema: {
             type: Type.OBJECT,
-            properties: {
-              alternatives: {
-                type: Type.ARRAY,
-                items: {
-                  type: Type.OBJECT,
-                  properties: {
-                    originalName: { type: Type.STRING },
-                    alternativeName: { type: Type.STRING },
-                    muscleGroup: { type: Type.STRING },
-                    requiredEquipment: { type: Type.STRING },
-                    reason: { type: Type.STRING },
-                  },
-                  required: ['originalName', 'alternativeName', 'muscleGroup', 'requiredEquipment', 'reason'],
-                },
-              },
-            },
+            properties: { alternatives: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: {
+              originalName: { type: Type.STRING }, alternativeName: { type: Type.STRING }, muscleGroup: { type: Type.STRING }, requiredEquipment: { type: Type.STRING }, reason: { type: Type.STRING },
+            }, required: ['originalName', 'alternativeName', 'muscleGroup', 'requiredEquipment', 'reason'] } } },
             required: ['alternatives'],
           },
         },
       });
-
       const result = JSON.parse(response.text || '{}');
-      res.json(result);
-    } catch (err: any) {
+      result.alternatives = Array.isArray(result.alternatives) ? result.alternatives.filter((item: any) => equipmentAllowed(String(item.requiredEquipment || ''), profile.equipment)).slice(0, 3) : [];
+      return res.json(result);
+    } catch (err) {
       console.error('Erro em /api/substitute-exercise:', err);
-      res.status(500).json({ error: 'Erro ao buscar alternativas' });
+      return res.status(500).json({ error: 'Erro ao buscar alternativas' });
     }
   });
 
-  // 3. AI Coach Chat Endpoint
   app.post('/api/ai-chat', async (req, res) => {
     try {
-      const { message, profile, currentPlan } = req.body;
+      const { message, profile, currentPlan } = req.body || {};
+      const profileError = validateProfile(profile);
+      if (profileError) return res.status(400).json({ error: profileError });
+      const cleanMessage = text(message, MAX_MESSAGE_LENGTH);
+      if (!cleanMessage) return res.status(400).json({ error: 'Mensagem vazia.' });
       const ai = getGenAI();
-      if (!ai) {
-        return res.status(503).json({ error: 'IA indisponível' });
-      }
+      if (!ai) return res.status(503).json({ error: 'IA indisponível' });
 
-      const systemInstruction = `Você é o ASSISTENTE TREINO IA, o coach inteligente e motivador do aplicativo TREINO IA PRO.
-Você responde perguntas sobre o plano de treino do usuário, dicas de execução, nutrição esportiva básica, descanso e segurança.
-
-Dados do usuário atual:
-- Nome: ${profile?.name || 'Atleta'}
-- Objetivo: ${profile?.objective || 'Geral'}
-- Nível: ${profile?.experience || 'Iniciante'}
-- Local de treino: ${profile?.location || 'Academia'}
-- Equipamentos: ${profile?.equipment?.join(', ') || 'Geral'}
-
-Suas respostas devem ser claras, objetivas, amigáveis e estruturadas em Markdown.
-Mantenha um tom profissional, educativo e encorajador.
-NUNCA prescreva substâncias ilícitas, anabolizantes ou diagnósticos médicos.`;
-
-      const prompt = `Pergunta do usuário: "${message}"`;
+      const safePlan = currentPlan ? JSON.stringify(currentPlan).slice(0, 30000) : 'Nenhum plano carregado.';
+      const systemInstruction = `Você é o ASSISTENTE TREINO IA, coach do TREINO IA PRO.
+Responda sobre treino, execução, descanso, nutrição esportiva básica e segurança.
+Use o plano atual abaixo para responder de forma contextualizada.
+Usuário: ${text(profile.name, 100)} | Objetivo: ${text(profile.objective, 100)} | Nível: ${text(profile.experience, 100)} | Local: ${text(profile.location, 100)} | Equipamentos: ${profile.equipment.join(', ')}
+PLANO ATUAL: ${safePlan}
+Se houver sinais de lesão/dor, não diagnostique e recomende avaliação profissional quando necessário. Nunca prescreva substâncias ilícitas, anabolizantes ou medicamentos.`;
 
       const response = await ai.models.generateContent({
         model: 'gemini-3.6-flash',
-        contents: prompt,
-        config: {
-          systemInstruction,
-          temperature: 0.7,
-        },
+        contents: `Pergunta do usuário: "${cleanMessage}"`,
+        config: { systemInstruction, temperature: 0.7 },
       });
-
-      res.json({ text: response.text });
-    } catch (err: any) {
+      return res.json({ text: response.text || 'Não consegui gerar uma resposta agora.' });
+    } catch (err) {
       console.error('Erro em /api/ai-chat:', err);
-      res.status(500).json({ error: 'Erro no assistente de IA' });
+      return res.status(500).json({ error: 'Erro no assistente de IA' });
     }
   });
 
-  // Serve Vite app
   if (process.env.NODE_ENV !== 'production') {
-    const vite = await createViteServer({
-      server: { middlewareMode: true },
-      appType: 'spa',
-    });
+    const vite = await createViteServer({ server: { middlewareMode: true }, appType: 'spa' });
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
-    app.get('*', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
-    });
+    app.get('*', (_req, res) => res.sendFile(path.join(distPath, 'index.html')));
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Serveur TREINO IA PRO rodando na porta ${PORT}`);
-  });
+  app.listen(PORT, '0.0.0.0', () => console.log(`Servidor TREINO IA PRO rodando na porta ${PORT}`));
 }
 
 startServer();
