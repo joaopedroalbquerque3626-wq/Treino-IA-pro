@@ -6,18 +6,29 @@ const aliases: Record<string, string[]> = {
   banco: ['banco', 'bench'], maquinas: ['maquina', 'maquinas', 'machine', 'machines'], 'barra fixa': ['barra fixa', 'pull up', 'pull-up'],
   polia: ['polia', 'cabo', 'crossover'], elastico: ['elastico', 'band', 'bands'],
 };
-export function equipmentAvailable(required: string, available: string[] = []) {
-  const req = normalize(required);
+
+function equipmentTokenAvailable(token: string, available: string[]) {
+  const req = normalize(token);
   if (!req || req.includes('peso corporal') || req.includes('corpo')) return true;
-  if (available.some(item => normalize(item).includes('todas as maquinas') || normalize(item).includes('maquinas de academia'))) return true;
   return available.some(item => {
     const current = normalize(item);
+    if (current.includes('todas as maquinas') || current.includes('maquinas de academia')) return true;
     if (current.includes(req) || req.includes(current)) return true;
     return Object.values(aliases).some(group => group.some(a => normalize(a) === req) && group.some(a => current.includes(normalize(a))));
   });
 }
 
-function exerciseMinutes(sets: number, restSeconds: number) { return Math.max(1, sets) * 1.25 + Math.max(0, sets - 1) * Math.max(0, restSeconds) / 60; }
+export function equipmentAvailable(required: string, available: string[] = []) {
+  const req = normalize(required);
+  if (!req || req.includes('peso corporal') || req.includes('corpo')) return true;
+  // Treat compound requirements such as "barra e anilhas" as separate requirements.
+  const tokens = req.split(/\s+(?:e|\+|\/|,|&)\s+/).filter(Boolean);
+  return tokens.length > 1 ? tokens.every(token => equipmentTokenAvailable(token, available)) : equipmentTokenAvailable(req, available);
+}
+
+function exerciseMinutes(sets: number, restSeconds: number) {
+  return Math.max(1, sets) * 1.25 + Math.max(0, sets - 1) * Math.max(0, restSeconds) / 60;
+}
 
 export function sanitizeWorkoutPlan(plan: WorkoutPlan, profile: UserProfile): WorkoutPlan {
   const requestedDays = Math.max(1, Math.min(7, Math.round(profile.daysPerWeek || 1)));
@@ -36,20 +47,12 @@ export function sanitizeWorkoutPlan(plan: WorkoutPlan, profile: UserProfile): Wo
     return { ...day, dayNumber: index + 1, exercises, estimatedDuration: day.isRestDay ? '0 min' : `${Math.ceil(exercises.reduce((sum, ex) => sum + exerciseMinutes(ex.sets, ex.restSeconds), 5))} min` };
   };
 
-  // Prefer real training days. Only use rest days to fill an incomplete plan.
   const trainingDays = (plan.days || []).filter(day => !day.isRestDay).slice(0, requestedDays).map((day, i) => cleanDay(day, i));
-  const restDays = (plan.days || []).filter(day => day.isRestDay);
-  const safeDays = [...trainingDays];
-  let restIndex = 0;
-  while (safeDays.length < requestedDays) {
-    const source = restDays[restIndex++];
-    safeDays.push(source ? cleanDay(source, safeDays.length) : {
-      id: `safe-rest-${safeDays.length + 1}`, dayNumber: safeDays.length + 1, title: `DIA ${safeDays.length + 1} — RECUPERAÇÃO`, isRestDay: true,
-      targetGoal: 'Recuperação', estimatedDuration: '0 min', warmup: 'Caminhada leve ou mobilidade confortável.', exercises: [],
-    });
-  }
+  // A selected training frequency means training days, not padded rest days. If the AI returns fewer
+  // valid training days, keep only the valid ones rather than silently inventing recovery days.
+  const safeDays = trainingDays.slice(0, requestedDays);
 
-  return { ...plan, days: safeDays.slice(0, requestedDays), summary: { ...plan.summary, daysPerWeek: requestedDays, sessionTimeMin: profile.sessionTimeMin, equipment: profile.equipment } };
+  return { ...plan, days: safeDays, summary: { ...plan.summary, daysPerWeek: safeDays.length, sessionTimeMin: profile.sessionTimeMin, equipment: profile.equipment } };
 }
 
 export function sessionAlreadyRecorded(history: CompletedSession[], session: CompletedSession) {
