@@ -17,17 +17,20 @@ import { ProfileView } from './components/ProfileView';
 import { NotificationsModal } from './components/NotificationsModal';
 import { generateLocalWorkoutPlan } from './services/workoutEngine';
 import { fetchAIPlanGeneration, fetchAIPlanTweak } from './services/aiApi';
+import { loadPersistedAccount, savePersistedAccount } from './services/persistence';
 import { sanitizeWorkoutPlan, sessionAlreadyRecorded, validEvolutionLog, progressionFromHistory } from './utils/dataGuards';
+
+const initialAccount = loadPersistedAccount();
 
 export default function App() {
   const [themeMode, setThemeMode] = useState<ThemeMode>(() => {
     try { const saved = localStorage.getItem('treino_ia_pro_theme'); return saved === 'light' || saved === 'dark' || saved === 'system' ? saved as ThemeMode : 'system'; } catch { return 'system'; }
   });
-  const [profile, setProfile] = useState<UserProfile | null>(() => { try { const saved = localStorage.getItem('treino_ia_pro_profile'); return saved ? JSON.parse(saved) : null; } catch { return null; } });
-  const [workoutPlan, setWorkoutPlan] = useState<WorkoutPlan | null>(() => { try { const saved = localStorage.getItem('treino_ia_pro_plan'); return saved ? JSON.parse(saved) : null; } catch { return null; } });
-  const [history, setHistory] = useState<CompletedSession[]>(() => { try { const saved = localStorage.getItem('treino_ia_pro_history'); return saved ? JSON.parse(saved) : []; } catch { return []; } });
-  const [evolutionLogs, setEvolutionLogs] = useState<EvolutionLog[]>(() => { try { const saved = localStorage.getItem('treino_ia_pro_evolution'); return saved ? JSON.parse(saved) : []; } catch { return []; } });
-  const [activeTab, setActiveTab] = useState<string>(() => profile && workoutPlan ? 'dashboard' : 'landing');
+  const [profile, setProfile] = useState<UserProfile | null>(initialAccount.profile);
+  const [workoutPlan, setWorkoutPlan] = useState<WorkoutPlan | null>(initialAccount.workoutPlan);
+  const [history, setHistory] = useState<CompletedSession[]>(initialAccount.history);
+  const [evolutionLogs, setEvolutionLogs] = useState<EvolutionLog[]>(initialAccount.evolutionLogs);
+  const [activeTab, setActiveTab] = useState<string>(() => initialAccount.profile && initialAccount.workoutPlan ? 'dashboard' : initialAccount.profile ? 'profile' : 'landing');
   const [safetyModalOpen, setSafetyModalOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [restTimerState, setRestTimerState] = useState({ isOpen: false, seconds: 60 });
@@ -47,10 +50,11 @@ export default function App() {
       return () => media.removeEventListener('change', listener);
     } catch { /* non-critical */ }
   }, [themeMode]);
-  useEffect(() => { if (profile) localStorage.setItem('treino_ia_pro_profile', JSON.stringify(profile)); }, [profile]);
-  useEffect(() => { if (workoutPlan) localStorage.setItem('treino_ia_pro_plan', JSON.stringify(workoutPlan)); }, [workoutPlan]);
-  useEffect(() => { localStorage.setItem('treino_ia_pro_history', JSON.stringify(history)); }, [history]);
-  useEffect(() => { localStorage.setItem('treino_ia_pro_evolution', JSON.stringify(evolutionLogs)); }, [evolutionLogs]);
+
+  useEffect(() => {
+    savePersistedAccount({ profile, workoutPlan, history, evolutionLogs });
+  }, [profile, workoutPlan, history, evolutionLogs]);
+
   useEffect(() => {
     if (profile?.weight && evolutionLogs.length === 0) setEvolutionLogs([{ id: `evo_init_${Date.now()}`, date: new Date().toLocaleDateString('en-CA'), weightKg: profile.weight, notes: 'Medida inicial informada no perfil' }]);
   }, [profile, evolutionLogs.length]);
@@ -112,7 +116,7 @@ export default function App() {
     <Navbar profile={profile} activeTab={activeTab} onNavigate={setActiveTab} streakDays={computeStreakDays()} onOpenNotifications={() => setNotificationsOpen(true)} onOpenSafety={() => setSafetyModalOpen(true)} themeMode={themeMode} onToggleTheme={handleToggleTheme} onLoginDemo={handleLoginDemo} />
     <main className="flex-1 min-w-0 w-full overflow-x-hidden pb-[env(safe-area-inset-bottom)]">
       {activeTab === 'landing' && <LandingPage onStartQuestionnaire={() => setActiveTab('questionnaire')} onLoginDemo={handleLoginDemo} onOpenSafety={() => setSafetyModalOpen(true)} />}
-      {activeTab === 'questionnaire' && <QuestionnaireWizard onComplete={handleQuestionnaireComplete} onCancel={() => setActiveTab(profile ? 'dashboard' : 'landing')} />}
+      {activeTab === 'questionnaire' && <QuestionnaireWizard onComplete={handleQuestionnaireComplete} onCancel={() => setActiveTab(profile ? (workoutPlan ? 'dashboard' : 'profile') : 'landing')} />}
       {activeTab === 'dashboard' && profile && <DashboardView profile={profile} workoutPlan={workoutPlan} history={history} streakDays={computeStreakDays()} onStartWorkout={handleStartWorkout} onNavigate={setActiveTab} onRegeneratePlan={handleRegeneratePlan} />}
       {activeTab === 'workouts' && profile && workoutPlan && <WorkoutPlanView plan={workoutPlan} profile={profile} onStartWorkout={handleStartWorkout} onOpenSubstituteModal={ex => setSubstituteModalState({ isOpen: true, exercise: ex })} onCustomPlanPrompt={handleCustomPlanTweak} loadingRegen={loadingPlan} />}
       {activeTab === 'active-workout' && profile && activeWorkoutDay && <ActiveWorkoutMode workoutDay={activeWorkoutDay} profile={profile} onFinishWorkout={handleFinishWorkout} onCancelWorkout={() => setActiveTab('dashboard')} onOpenRestTimer={seconds => setRestTimerState({ isOpen: true, seconds })} onOpenSubstituteModal={ex => setSubstituteModalState({ isOpen: true, exercise: ex })} />}
