@@ -24,6 +24,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onToggleTheme,
   onLoginDemo,
 }) => {
+  const isDark = typeof document !== 'undefined' && document.documentElement.classList.contains('dark');
   const effectiveThemeLabel = themeMode === 'system' ? 'Tema automático' : themeMode === 'dark' ? 'Modo escuro' : 'Modo claro';
 
   return (
@@ -61,7 +62,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             aria-label={`${effectiveThemeLabel}. Alternar tema.`}
             className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 active:scale-95 transition-all cursor-pointer"
           >
-            {document.documentElement.classList.contains('dark') ? (
+            {isDark ? (
               <Sun className="w-4 h-4 text-amber-400" aria-hidden="true" />
             ) : (
               <Moon className="w-4 h-4 text-blue-600" aria-hidden="true" />
