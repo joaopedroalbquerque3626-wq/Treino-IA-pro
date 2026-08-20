@@ -278,7 +278,7 @@ export default function App() {
 
       {profile && <BottomNav activeTab={activeTab} onNavigate={safeNavigate} />}
       <SafetyDisclaimerModal isOpen={safetyModalOpen} onClose={() => setSafetyModalOpen(false)} />
-      <NotificationsModal isOpen={notificationsOpen} onClose={() => setNotificationsOpen(false)} />
+      <NotificationsModal isOpen={notificationsOpen} onClose={() => setNotificationsOpen(false)} profile={profile} streakDays={computeStreakDays()} onNavigate={safeNavigate} />
       <RestTimerModal isOpen={restTimerState.isOpen} seconds={restTimerState.seconds} onClose={() => setRestTimerState((state) => ({ ...state, isOpen: false }))} />
       <SubstituteModal isOpen={substituteModalState.isOpen} exercise={substituteModalState.exercise} profile={profile} onClose={() => setSubstituteModalState({ isOpen: false, exercise: null })} onSelectAlternative={handleSelectAlternative} />
     </div>
